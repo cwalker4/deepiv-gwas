@@ -1,4 +1,6 @@
-.DS_STORE
+.DS_Store
+.DS_Store?
+._*.DS_STORE
 .Rhistory
 
 ## Core latex/pdflatex auxiliary files:
