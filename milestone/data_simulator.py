@@ -8,6 +8,9 @@ ysd = 158.
 ymu = -292.1
 
 def monte_carlo_error(g_hat, data_fn, ntest=5000):
+    '''
+    Monte Carlo simulation to compare an estimated function to ground truth
+    '''
     seed = np.random.randint(1e9)
     x, z, p, y, g_true = demand(ntest, seed, test=True)
 
