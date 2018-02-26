@@ -19,10 +19,12 @@ import deepiv.architectures as architectures
 import deepiv.densities as densities
 from keras.layers.merge import Concatenate
 
+import pdb
+
 n = 5000
 dropout_rate = min(1000./(1000. + n), 0.5)
 epochs = int(1500000./float(n)) # heuristic to get epochs
-epochs = 30
+#epochs = 30
 batch_size = 100
 
 x, z, p, y, g_true = data_simulator.demand(n, ypcor=0.5)
@@ -32,16 +34,11 @@ print("Data shapes:\n\
         Instruments: {z} \n\
         Policy: {p} \n\
         Response: {y}".format(**{'x':x.shape, 'z':z.shape,
-            'p':p.shape, 'y':y.shape}))
-
-        # FIRST STAGE: z->p model
-instruments = Input(shape=(z.shape[1],), name = "instruments")
-features = Input(shape=(x.shape[1],), name = "features")
-treatment_input = Concatenate(axis=1)([instruments, features])
+                              'p':p.shape, 'y':y.shape}))
 
 hidden = [128, 64, 32]
 
-activation = "tanh" # TODO: try relu
+activation = "tanh" # TODO: try relu?
 l2_reg = 0.0001
 
 n_components = 10
@@ -54,37 +51,39 @@ def OneStageModel(input_shape):
 
     X = X_input
 
-        # Define 3 hidden layers with nodes 128, 64, 32 respectively 
+    # Define 3 hidden layers with nodes 128, 64, 32 respectively 
     X = Dense(128, activation='relu', name='fc1')(X)
     Dropout(dropout_rate)
     X = Dense(64, activation='relu', name='fc2')(X)
     Dropout(dropout_rate)
     X = Dense(32, activation='relu', name='fc3')(X)
     Dropout(dropout_rate)
-
+ 
     # Define output layer
     X = Dense(1, activation = 'relu', name = 'output')(X)
 
     # Define Regularization technique on activity
-    activity_regularizer = keras.regularizers.l2(l2_reg)
+    activity_regularizer = regularizers.l2(l2_reg)
 
     # Create Model
     model = Model(inputs = X_input, outputs = X, name='OneStageModel')
 
     return model
 
+policy = np.concatenate((x, p), axis=1)
 
-policy = Input(shape=(p.shape[1],), name="policy")
-response_input = Concatenate(axis=1)([features, policy])
+policy = Input(shape=(policy.shape[1],), name="design")
+#response_input = Concatenate(axis=1)([features, policy])
 
+#pdb.set_trace()
 # Create the model
-oneStageNN = OneStageModel(response_input.shape[1:])
+oneStageNN = OneStageModel((n,1))
 
 # Compile the model to optimize with RMSprop and MSE loss 
 oneStageNN.compile(optimizer='adam', loss='mse')
 
 # Train the model
-oneStageNN.fit(response_input, response, epochs=epochs, batch_size=batch_size)
+oneStageNN.fit(policy, y, epochs=epochs, batch_size=batch_size)
 
 
 # Make predictions
