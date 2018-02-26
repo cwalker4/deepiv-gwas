@@ -80,19 +80,21 @@ def OneStageModel(input_shape):
 	return model
 
 
+policy = Input(shape=(p.shape[1],), name="policy")
+response_input = Concatenate(axis=1)([features, policy])
 
 # Create the model
-oneStageNN = OneStageModel(X_train.shape[1:])
+oneStageNN = OneStageModel(response_input.shape[1:])
 
 # Compile the model to optimize with RMSprop and MSE loss 
 oneStageNN.compile(optimizer='adam', loss='mse')
 
 # Train the model
-oneStageNN.fit(X_train, Y_train, epochs=40, batch_size=50)
+oneStageNN.fit(response_input, response, epochs=epochs, batch_size=batch_size)
 
 
 # Make predictions
-preds = oneStageNN.evaluate(X_test, Y_test, batch_size=32, verbose=1, sample_weight=None)
+preds = oneStageNN.evaluate(response_input, response, batch_size=batch_size, verbose=1, sample_weight=None)
 
 print()
 print ("Loss = " + str(preds[0]))
