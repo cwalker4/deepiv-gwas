@@ -34,7 +34,7 @@ treatment_input = Concatenate(axis=1)([instruments, features])
 
 hidden = [128, 64, 32]
 
-activation = "tanh" # TODO: try relu
+activation = "tanh" # TODO: try relu?
 l2_reg = 0.0001
 
 n_components = 10
