@@ -1,6 +1,6 @@
 import numpy as np
 from sklearn.preprocessing import OneHotEncoder
-#import pdb 
+import pdb 
 
 psd = 3.7
 pmu = 17.779
@@ -8,12 +8,14 @@ ysd = 158.
 ymu = -292.1
 
 def monte_carlo_error(g_hat, data_fn, ntest=5000):
+    pdb.set_trace()
     seed = np.random.randint(1e9)
+    x, z, p, y, g_true = demand(ntest, seed, test=True)
 
-    t = np.linspace(np.percentile(t, 2.5), np.percentile(t, 97.5),ntest).reshape(-1,1)
-    y = g_true(x, z, t)
+    p = np.linspace(np.percentile(p, 2.5), np.percentile(p, 97.5), ntest).reshape(-1,1)
+    y = g_true(x, z, p)
     y_true = y.flatten()
-    y_hat = g_hat(x, z, t).flatten()
+    y_hat = g_hat(x, z, p).flatten()
     return ((y_hat - y_true)**2).mean()
 
 def one_hot(col, **kwargs):
@@ -77,7 +79,7 @@ def emocoef(emo):
     emoc = (emo * np.array([1., 2., 3., 4., 5., 6., 7.])[None, :]).sum(axis=1)
     return emoc
 
-def storeg(x, price):
+def storeg(x, p):
     '''
     Calculates sales numbers as a noisy function of price and consumer type
 
@@ -93,7 +95,8 @@ def storeg(x, price):
 
     # corresponds to eqn for y in Hartford et al., with steps added to 
     # un-normalize price
-    g = sensf(time)*emoc*10. + (emoc*sensf(time)-2.0)*(psd*price + pmu)
+    pdb.set_trace()
+    g = sensf(time)*emoc*10. + (emoc*sensf(time)-2.0)*(psd*p.flatten() + pmu)
     y = (g - ymu)/ysd
     return y.reshape(-1, 1)
 
