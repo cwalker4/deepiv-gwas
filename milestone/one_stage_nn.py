@@ -65,11 +65,3 @@ oneStageNN.compile(optimizer='adam', loss='mse')
 oneStageNN.fit(policy, y, epochs=epochs, batch_size=batch_size)
 
 
-# Make predictions
-preds = oneStageNN.evaluate(response_input, response, batch_size=batch_size, verbose=1, sample_weight=None)
-
-print()
-print ("Loss = " + str(preds[0]))
-print ("Test Accuracy = " + str(preds[1]))
-
-
