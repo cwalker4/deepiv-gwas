@@ -1,6 +1,6 @@
 import numpy as np
 from sklearn.preprocessing import OneHotEncoder
-import pdb 
+#import pdb 
 
 psd = 3.7
 pmu = 17.779
@@ -115,7 +115,6 @@ def demand(n, seed=1, ynoise=1., pnoise=1., ypcor=0.8, test=False):
     y -- observed sales
     g -- sales generating function
     '''
-    pdb.set_trace()
     rng = np.random.RandomState(seed)
 
     # covariates: time and emotion (emotion = customer type)

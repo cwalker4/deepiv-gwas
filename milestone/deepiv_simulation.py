@@ -13,6 +13,10 @@ from keras.models import Model
 from keras.layers.merge import Concatenate
 
 n = 5000
+dropout_rate = min(1000./(1000. + n), 0.5)
+epochs = int(1500000./float(n)) # heuristic to get epochs
+epochs = 300
+batch_size = 100
 
 x, z, p, y, g_true = data_simulator.demand(n, ypcor=0.5)
 
@@ -24,7 +28,7 @@ print("Data shapes:\n\
                                  't':p.shape, 'y':y.shape}))
 
 # FIRST STAGE: z->p model
-instruments = Input(shape=z.shape[1],), name = "instruments")
+instruments = Input(shape=(z.shape[1],), name = "instruments")
 features = Input(shape=(x.shape[1],), name = "features")
 treatment_input = Concatenate(axis=1)([instruments, features])
 
@@ -51,11 +55,13 @@ treatment_model.fit([z, x], p, epochs = epochs, batch_size = batch_size)
 
 # SECOND STAGE: p->y model
 
+activation = "relu"
+
 treatment = Input(shape=(p.shape[1],), name="treatment")
 response_input = Concatenate(axis=1)([features, policy])
 
 est_response = architectures.feed_forward_net(response_input, Dense(1),
-                                              activations=act,
+                                              activations=activation,
                                               hidden_layers=hidden,
                                               l2 = l2_reg,
                                               dropout_rate=dropout_rate)
