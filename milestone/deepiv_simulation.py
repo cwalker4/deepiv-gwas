@@ -15,7 +15,7 @@ from keras.layers.merge import Concatenate
 n = 5000
 dropout_rate = min(1000./(1000. + n), 0.5)
 epochs = int(1500000./float(n)) # heuristic to get epochs
-epochs = 30
+#epochs = 300
 batch_size = 100
 
 x, z, p, y, g_true = data_simulator.demand(n, ypcor=0.5)

@@ -1,18 +1,11 @@
 import numpy as np
 from keras import layers, regularizers
+
 import tensorflow as tf
+
 from keras.layers import Input, Dense, Activation
 from keras.layers import Dropout
 from keras.models import Model
-from keras.preprocessing import image
-from keras.utils import layer_utils
-from keras.utils.data_utils import get_file
-from keras.applications.imagenet_utils import preprocess_input
-import pydot
-from IPython.display import SVG
-from keras.utils.vis_utils import model_to_dot
-from keras.utils import plot_model
-from kt_utils import *
 
 import keras.backend as K
 K.set_image_data_format('channels_last')
@@ -39,9 +32,9 @@ print("Data shapes:\n\
         Instruments: {z} \n\
         Policy: {p} \n\
         Response: {y}".format(**{'x':x.shape, 'z':z.shape,
-                                 'p':p.shape, 'y':y.shape}))
+            'p':p.shape, 'y':y.shape}))
 
-# FIRST STAGE: z->p model
+        # FIRST STAGE: z->p model
 instruments = Input(shape=(z.shape[1],), name = "instruments")
 features = Input(shape=(x.shape[1],), name = "features")
 treatment_input = Concatenate(axis=1)([instruments, features])
@@ -53,31 +46,32 @@ l2_reg = 0.0001
 
 n_components = 10
 
-numpy.random.seed(123)
+np.random.seed(123)
 
 def OneStageModel(input_shape):
-	# Define input placeholder 
-	X_input = Input(input_shape)
+    # Define input placeholder 
+    X_input = Input(input_shape)
 
+    X = X_input
 
-	# Define 3 hidden layers with nodes 128, 64, 32 respectively 
-	X = Dense(128, activation='relu', name='fc1')(X)
-	Dropout(dropout_rate)
-	X = Dense(64, activation='relu', name='fc2')(X)
-	Dropout(dropout_rate)
-	X = Dense(32, activation='relu', name='fc3')(X)
-	Dropout(dropout_rate)
+        # Define 3 hidden layers with nodes 128, 64, 32 respectively 
+    X = Dense(128, activation='relu', name='fc1')(X)
+    Dropout(dropout_rate)
+    X = Dense(64, activation='relu', name='fc2')(X)
+    Dropout(dropout_rate)
+    X = Dense(32, activation='relu', name='fc3')(X)
+    Dropout(dropout_rate)
 
-	# Define output layer
-	X = Dense(1, activation = 'relu', name = 'output')(X)
+    # Define output layer
+    X = Dense(1, activation = 'relu', name = 'output')(X)
 
-	# Define Regularization technique on activity
-	activity_regularizer = keras.regularizers.l2(l2_reg)
+    # Define Regularization technique on activity
+    activity_regularizer = keras.regularizers.l2(l2_reg)
 
-	# Create Model
-	model = Model(inputs = X_input, outputs = X, name='OneStageModel')
+    # Create Model
+    model = Model(inputs = X_input, outputs = X, name='OneStageModel')
 
-	return model
+    return model
 
 
 policy = Input(shape=(p.shape[1],), name="policy")

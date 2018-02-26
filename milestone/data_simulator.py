@@ -8,7 +8,6 @@ ysd = 158.
 ymu = -292.1
 
 def monte_carlo_error(g_hat, data_fn, ntest=5000):
-    pdb.set_trace()
     seed = np.random.randint(1e9)
     x, z, p, y, g_true = demand(ntest, seed, test=True)
 
@@ -95,7 +94,6 @@ def storeg(x, p):
 
     # corresponds to eqn for y in Hartford et al., with steps added to 
     # un-normalize price
-    pdb.set_trace()
     g = sensf(time)*emoc*10. + (emoc*sensf(time)-2.0)*(psd*p.flatten() + pmu)
     y = (g - ymu)/ysd
     return y.reshape(-1, 1)
