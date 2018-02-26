@@ -1,7 +1,8 @@
 import numpy as np
 from keras import layers, regularizers
-from keras.layers import Input, Dense, Activation, ZeroPadding2D, BatchNormalization, Flatten, Conv2D
-from keras.layers import Dropout, GlobalMaxPooling2D, GlobalAveragePooling2D
+import tensorflow as tf
+from keras.layers import Input, Dense, Activation
+from keras.layers import Dropout
 from keras.models import Model
 from keras.preprocessing import image
 from keras.utils import layer_utils
