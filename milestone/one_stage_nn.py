@@ -5,7 +5,7 @@ import tensorflow as tf
 
 from keras.layers import Input, Dense, Activation
 from keras.layers import Dropout
-from keras.models import Model
+from keras.models import Sequential
 
 import keras.backend as K
 K.set_image_data_format('channels_last')
