@@ -2,6 +2,8 @@ import data_simulator
 
 import numpy as np
 
+import pdb
+
 from deepiv.models import Treatment, Response
 import deepiv.architectures as architectures
 import deepiv.densities as densities
@@ -15,7 +17,7 @@ from keras.layers.merge import Concatenate
 n = 5000
 dropout_rate = min(1000./(1000. + n), 0.5)
 epochs = int(1500000./float(n)) # heuristic to get epochs
-#epochs = 300
+epochs = 30 # activate for debugging
 batch_size = 100
 
 x, z, p, y, g_true = data_simulator.demand(n, ypcor=0.5)
@@ -60,6 +62,7 @@ activation = "relu"
 policy = Input(shape=(p.shape[1],), name="policy")
 response_input = Concatenate(axis=1)([features, policy])
 
+pdb.set_trace()
 est_response = architectures.feed_forward_net(response_input, Dense(1),
                                               activations=activation,
                                               hidden_layers=hidden,
@@ -74,7 +77,7 @@ response_model.compile('adam', loss='mse')
 response_model.fit([z, x], y, epochs=epochs, verbose=1,
                    batch_size=batch_size, samples_per_batch=2)
 
-performance = data_simulator.monte_carlo_error(lambda x,z,t: response_model.predict([x,p]), 
+performance = data_simulator.monte_carlo_error(lambda x,z,p: response_model.predict([x,p]), 
                                                data_simulator.demand)
 print("Out of sample performance evaluated against the true function: %f" % performance)
 

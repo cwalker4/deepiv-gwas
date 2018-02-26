@@ -14,16 +14,12 @@ from matplotlib.pyplot import imshow
 
 import data_simulator
 
-from deepiv.models import Treatment, Response
-import deepiv.architectures as architectures
-import deepiv.densities as densities
-from keras.layers.merge import Concatenate
-
 import pdb
 
 n = 5000
 dropout_rate = min(1000./(1000. + n), 0.5)
 epochs = int(1500000./float(n)) # heuristic to get epochs
+# epochs = 30 # activate for debugging
 batch_size = 100
 
 x, z, p, y, g_true = data_simulator.demand(n, ypcor=0.5)
@@ -37,8 +33,6 @@ print("Data shapes:\n\
 
 hidden = [128, 64, 32]
 l2_reg = 0.0001
-
-n_components = 10
 
 np.random.seed(123)
 
@@ -54,7 +48,7 @@ oneStageNN = Sequential([
     Dropout(dropout_rate),
     Dense(hidden[2], activation='relu', name='fc3', kernel_regularizer=w_reg),
     Dropout(dropout_rate),
-    Dense(1, activation = 'linear', name = 'output', kernel_regularizer = w_reg) 
+    Dense(1, activation = 'linear', name = 'output') 
 	])
 
 # Compile the model to optimize with RMSprop and MSE loss 
@@ -62,4 +56,9 @@ oneStageNN.compile(optimizer='adam', loss='mse')
 
 # Train the model
 oneStageNN.fit(policy, y, epochs=epochs, batch_size=batch_size)
+
+performance = data_simulator.monte_carlo_error(lambda x,z,p: oneStageNN.predict(policy),
+                                               data_simulator.demand)
+
+print("Out of sample performance evaluated against the true function: %.4f" % performance)
 
