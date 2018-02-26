@@ -45,39 +45,18 @@ n_components = 10
 
 np.random.seed(123)
 
-def OneStageModel(input_shape):
-    # Define input placeholder 
-    X_input = Input(input_shape)
-
-    X = X_input
-
-    # Define 3 hidden layers with nodes 128, 64, 32 respectively 
-    X = Dense(128, activation='relu', name='fc1')(X)
-    Dropout(dropout_rate)
-    X = Dense(64, activation='relu', name='fc2')(X)
-    Dropout(dropout_rate)
-    X = Dense(32, activation='relu', name='fc3')(X)
-    Dropout(dropout_rate)
- 
-    # Define output layer
-    X = Dense(1, activation = 'relu', name = 'output')(X)
-
-    # Define Regularization technique on activity
-    activity_regularizer = regularizers.l2(l2_reg)
-
-    # Create Model
-    model = Model(inputs = X_input, outputs = X, name='OneStageModel')
-
-    return model
-
 policy = np.concatenate((x, p), axis=1)
 
-policy = Input(shape=(policy.shape[1],), name="design")
-#response_input = Concatenate(axis=1)([features, policy])
-
-#pdb.set_trace()
-# Create the model
-oneStageNN = OneStageModel((n,1))
+oneStageNN = Sequential([
+	# Define 3 hidden layers with nodes 128, 64, 32 respectively 
+    Dense(128, activation='relu', input_dim = 9, name='fc1'),
+    Dropout(dropout_rate),
+    Dense(64, activation='relu', name='fc2'),
+    Dropout(dropout_rate),
+    Dense(32, activation='relu', name='fc3'),
+    Dropout(dropout_rate),
+    Dense(1, activation = 'linear', name = 'output', activity_regularizer = regularizers.l2(l2_reg))
+	])
 
 # Compile the model to optimize with RMSprop and MSE loss 
 oneStageNN.compile(optimizer='adam', loss='mse')
