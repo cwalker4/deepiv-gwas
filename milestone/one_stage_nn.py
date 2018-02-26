@@ -21,7 +21,37 @@ from matplotlib.pyplot import imshow
 
 import data_simulator
 
-%matplotlib inline
+from deepiv.models import Treatment, Response
+import deepiv.architectures as architectures
+import deepiv.densities as densities
+from keras.layers.merge import Concatenate
+
+n = 5000
+dropout_rate = min(1000./(1000. + n), 0.5)
+epochs = int(1500000./float(n)) # heuristic to get epochs
+epochs = 30
+batch_size = 100
+
+x, z, p, y, g_true = data_simulator.demand(n, ypcor=0.5)
+
+print("Data shapes:\n\
+        Features:{x} \n\
+        Instruments: {z} \n\
+        Policy: {p} \n\
+        Response: {y}".format(**{'x':x.shape, 'z':z.shape,
+                                 'p':p.shape, 'y':y.shape}))
+
+# FIRST STAGE: z->p model
+instruments = Input(shape=(z.shape[1],), name = "instruments")
+features = Input(shape=(x.shape[1],), name = "features")
+treatment_input = Concatenate(axis=1)([instruments, features])
+
+hidden = [128, 64, 32]
+
+activation = "tanh" # TODO: try relu
+l2_reg = 0.0001
+
+n_components = 10
 
 numpy.random.seed(123)
 
