@@ -54,9 +54,17 @@ def OneStageModel(input_shape):
 oneStageNN = OneStageModel(X_train.shape[1:])
 
 # Compile the model to optimize with RMSprop and MSE loss 
-model.compile(optimizer='rmsprop', loss='mse')
+oneStageNN.compile(optimizer='adam', loss='mse')
+
+# Train the model
+oneStageNN.fit(X_train, Y_train, epochs=40, batch_size=50)
 
 
+# Make predictions
+preds = oneStageNN.evaluate(X_test, Y_test, batch_size=32, verbose=1, sample_weight=None)
 
+print()
+print ("Loss = " + str(preds[0]))
+print ("Test Accuracy = " + str(preds[1]))
 
 
