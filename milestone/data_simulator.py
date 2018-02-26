@@ -7,6 +7,15 @@ pmu = 17.779
 ysd = 158.
 ymu = -292.1
 
+def monte_carlo_error(g_hat, data_fn, ntest=5000):
+    seed = np.random.randint(1e9)
+
+    t = np.linspace(np.percentile(t, 2.5), np.percentile(t, 97.5),ntest).reshape(-1,1)
+    y = g_true(x, z, t)
+    y_true = y.flatten()
+    y_hat = g_hat(x, z, t).flatten()
+    return ((y_hat - y_true)**2).mean()
+
 def one_hot(col, **kwargs):
     '''
     Transforms labels vector to one-hot encoding
