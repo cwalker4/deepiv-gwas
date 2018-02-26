@@ -14,12 +14,8 @@ from keras.layers import Input, Dense
 from keras.models import Model
 from keras.layers.merge import Concatenate
 
-n = 5000
-dropout_rate = min(1000./(1000. + n), 0.5)
-epochs = int(1500000./float(n)) # heuristic to get epochs
-epochs = 30 # activate for debugging
-batch_size = 100
-
+'''
+no longer used, but holding onto it in case we want it l8r :) 
 x, z, p, y, g_true = data_simulator.demand(n, ypcor=0.5)
 
 print("Data shapes:\n\
@@ -28,58 +24,76 @@ print("Data shapes:\n\
         Policy: {p} \n\
         Response: {y}".format(**{'x':x.shape, 'z':z.shape,
                                  'p':p.shape, 'y':y.shape}))
+'''
 
-# FIRST STAGE: z->p model
-instruments = Input(shape=(z.shape[1],), name = "instruments")
-features = Input(shape=(x.shape[1],), name = "features")
-treatment_input = Concatenate(axis=1)([instruments, features])
+def deepiv(n, rho):
+    '''
+    Generates simulated data and runs both stages of the deepiv architecture
 
-hidden = [128, 64, 32]
+    Arguments:
+    ypcor -- the amount of endogeneity in our model
 
-activation = "tanh" # TODO: try relu?
-l2_reg = 0.0001
+    Returns:
+    performance -- out of sample monte carlo error against true causal function
 
-n_components = 10
+    '''
+    dropout_rate = min(1000./(1000. + n), 0.5)
+    epochs = int(1500000./float(n)) # heuristic to get epochs
+    batch_size = 100
 
-est_treat = architectures.feed_forward_net(treatment_input, 
-                                           lambda x: densities.mixture_of_gaussian_output(x, n_components),
-                                           hidden_layers=hidden,
-                                           dropout_rate=dropout_rate,
-                                           l2 = l2_reg,
-                                           activations=activation)
+    x, z, p, y, g_true = data_simulator.demand(n, ypcor=rho)
 
-treatment_model = Treatment(inputs=[instruments, features], outputs=est_treat)
-treatment_model.compile('adam',
-                        loss='mixture_of_gaussians',
-                        n_components = n_components)
+    # FIRST STAGE: z->p model
+    instruments = Input(shape=(z.shape[1],), name = "instruments")
+    features = Input(shape=(x.shape[1],), name = "features")
+    treatment_input = Concatenate(axis=1)([instruments, features])
 
-treatment_model.fit([z, x], p, epochs = epochs, batch_size = batch_size)
+    hidden = [128, 64, 32]
 
-# SECOND STAGE: p->y model
+    activation = "tanh" # TODO: try relu?
+    l2_reg = 0.0001
 
-activation = "relu"
+    n_components = 10
 
-policy = Input(shape=(p.shape[1],), name="policy")
-response_input = Concatenate(axis=1)([features, policy])
+    est_treat = architectures.feed_forward_net(treatment_input, 
+                                               lambda x: densities.mixture_of_gaussian_output(x, n_components),
+                                               hidden_layers=hidden,
+                                               dropout_rate=dropout_rate,
+                                               l2 = l2_reg,
+                                               activations=activation)
 
-pdb.set_trace()
-est_response = architectures.feed_forward_net(response_input, Dense(1),
-                                              activations=activation,
-                                              hidden_layers=hidden,
-                                              l2 = l2_reg,
-                                              dropout_rate=dropout_rate)
+    treatment_model = Treatment(inputs=[instruments, features], outputs=est_treat)
+    print("Fitting treatment...")
+    treatment_model.compile('adam',
+                            loss='mixture_of_gaussians',
+                            n_components = n_components)
 
-response_model = Response(treatment=treatment_model,
-                          inputs=[features, policy],
-                          outputs = est_response)
+    treatment_model.fit([z, x], p, epochs = epochs, batch_size = batch_size, verbose=0)
 
-response_model.compile('adam', loss='mse')
-response_model.fit([z, x], y, epochs=epochs, verbose=1,
-                   batch_size=batch_size, samples_per_batch=2)
+    # SECOND STAGE: p->y model
+    print("Fitting response...")
+    activation = "relu"
 
-performance = data_simulator.monte_carlo_error(lambda x,z,p: response_model.predict([x,p]), 
-                                               data_simulator.demand)
-print("Out of sample performance evaluated against the true function: %f" % performance)
+    policy = Input(shape=(p.shape[1],), name="policy")
+    response_input = Concatenate(axis=1)([features, policy])
+
+    est_response = architectures.feed_forward_net(response_input, Dense(1),
+                                                  activations=activation,
+                                                  hidden_layers=hidden,
+                                                  l2 = l2_reg,
+                                                  dropout_rate=dropout_rate)
+
+    response_model = Response(treatment=treatment_model,
+                              inputs=[features, policy],
+                              outputs = est_response)
+
+    response_model.compile('adam', loss='mse')
+    response_model.fit([z, x], y, epochs=epochs, verbose=0,
+                       batch_size=batch_size, samples_per_batch=2)
+
+    performance = data_simulator.monte_carlo_error(lambda x,z,p: response_model.predict([x,p]), 
+                                                   data_simulator.demand, ntest=n)
+    return performance
 
 
 
