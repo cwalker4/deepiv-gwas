@@ -46,11 +46,11 @@ policy = np.concatenate((x, p), axis=1)
 
 oneStageNN = Sequential([
 	# Define 3 hidden layers with nodes 128, 64, 32 respectively 
-    Dense(128, activation='relu', input_dim = 9, name='fc1'),
+    Dense(hidden[0], activation='relu', input_dim = 9, name='fc1'),
     Dropout(dropout_rate),
-    Dense(64, activation='relu', name='fc2'),
+    Dense(hidden[1], activation='relu', name='fc2'),
     Dropout(dropout_rate),
-    Dense(32, activation='relu', name='fc3'),
+    Dense(hidden[2], activation='relu', name='fc3'),
     Dropout(dropout_rate),
     Dense(1, activation = 'linear', name = 'output', activity_regularizer = regularizers.l2(l2_reg))
 	])
