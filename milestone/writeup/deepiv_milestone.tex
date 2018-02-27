@@ -1,5 +1,5 @@
-\documentclass[11pt, oneside, twocolumn]{article}   	% use "amsart" instead of "article" for AMSLaTeX format
-\usepackage[margin=0.75in]{geometry}                		% See geometry.pdf to learn the layout options. There are lots.
+\documentclass[10.5pt, oneside, twocolumn]{article}   	% use "amsart" instead of "article" for AMSLaTeX format
+\usepackage[margin=0.7in]{geometry}                		% See geometry.pdf to learn the layout options. There are lots.
 \geometry{letterpaper}                   		% ... or a4paper or a5paper or ... 
 %\geometry{landscape}                		% Activate for rotated page geometry
 %\usepackage[parfill]{parskip}    		% Activate to begin paragraphs with an empty line rather than an indent
@@ -18,7 +18,9 @@
 %SetFonts
 
 
-\title{Deep IV GWAS: Milestone \\
+\title{Deep IV with Whole-Omics Data to Identify Novel Carcinogenesis-Mediating Pathways \\
+	\vspace{3mm}
+	\large Project Milestone \\
 	\large Category: Health / Genomics}
 \author{
 	Jack Andraka\\ 
@@ -90,13 +92,27 @@ The causal relationship we wish to uncover is $h(t, s, p) = (10 + p)s\psi_t - 2p
 Since we have our ground truth causal relationship, we evaluate our model by first generating features $[t, s, p]$, but then change $p$ to a fixed grid of price values $p'$. This allows us to compare our predicted sales, $\hat{h}$ against the ground truth $h$. 
 
 \subsection{Results} 
-Results of @billyf and @cwalker4 simulations.
+\begin{figure}[h]
+	\caption{Causal Performance (n=1000)}
+	\centering
+	\includegraphics[width=0.5\textwidth]{perf_small.png}
+\end{figure}
+
+\begin{figure}[h]
+	\caption{Causal Performance (n=10,000)}
+	\centering
+	\includegraphics[width=0.5\textwidth]{perf_big.png}
+\end{figure}
+
+Figures 2 and 3 summarize the results of our simulations for two different $n$, giving out-of-sample MSE as we vary the level of endogeneity in our DGP. Each model was fit on 10 random samples from the DGP for each $\rho$ and sample size. The performance of the DeepIV architecture was largely unaffected by the increase in $\rho$, reflecting the resilience of this architecture to confounding latent variables. On the other hand, the Feed-Forward Network did a poor job of recovering the true counterfactual function we were testing with this simulation.\footnote{Note that this model would have performed well if we had been testing its ability to estimate $h(t, s, p) + \mathbb{E}[e | p]$, i.e. if we were not trying to make counterfactual predictions.}
 
 \section{Data}
-@jandraka
+For this project we are employing whole-genome and whole-transcriptome data from the Genotype-Tissue Expression (GTEx) project and The Cancer Genome Atlas (TCGA). The GTEx dataset includes 10,294 samples that are non-cancerous with matched whole-genome and whole-transcriptome data. The TCGA dataset includes 3,681 breast cancer samples with matched whole-genome and whole transcriptome data. For both of these datasets there is a total of 22,147 genes measured with 3,142,246 mutations recorded between the two datasets.\\
+
+ The transcriptome dataset for both GTEx and TCGA quantified 60,239 mRNAs, measured in transcripts per kilobase million. Our experimental setup will only use variants in transcription factors (1,391 genes) with a total of 6,495 mutations (ranges from 0-29 mutations per transcription factor). We will also employ L1 regularization for the second stage of our Deep-IV framework to eliminate highly correlated genes (reduce effects of linkage disequilibrium) and reduce our feature space to prevent overfitting.
 
 \section{Next Steps}
-This milestone was a proof of concept, showing that the DeepIV method effectively uncovers causal relationships that are glossed over by a naive Feed Forward Neural Net. Crucially, first implementing our architecture on simulated data provided a sanity check of our code before moving forward with our real life dataset where the true causal relationship is unknown.
+This milestone was a proof of concept, showing that the DeepIV method effectively uncovers causal relationships that are glossed over by a naive Feed Forward Neural Net. Crucially, first implementing our architecture on simulated data provided a sanity check of our code before moving forward with our real life dataset where the true causal relationship is unknown.\\
 
 Just recently we were granted access to breast cancer genetic data. The path forward entails cleaning this data, running our baseline model described above on the genetic data, and then tuning our hyperparameters. Additionally, we would like to include the standard 2SLS as another baseline to judge the effectiveness of the DeepIV architecture against the standard IV method. 
 
