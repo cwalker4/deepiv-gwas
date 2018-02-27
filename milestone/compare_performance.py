@@ -5,7 +5,7 @@ import one_stage_nn
 import deepiv_simulation
 import time
 
-n_simulations = 1 # number of draws from the DGP per sample size and rho
+n_simulations = 10 # number of draws from the DGP per sample size and rho
 rhos = [0.1, 0.25, 0.5, 0.75, 0.9]
 sample_sz = [1000, 5000, 10000, 20000] # if we want to test against diff sample sizes
 
@@ -40,8 +40,8 @@ for i, rho in enumerate(rhos):
     print("Avg ffn: %.5f" % avg_ffn)
     print("Avg deep: %.5f" % avg_deep)
 
-np.savetxt('simulation_results/ffn.csv', ffn_perf, delimiter=',')
-np.savetxt('simulation_results/deep.csv', deep_perf, delimiter=',')
+np.savetxt('simulation_results/ffn_big.csv', ffn_perf, delimiter=',')
+np.savetxt('simulation_results/deep_big.csv', deep_perf, delimiter=',')
         
                 
 

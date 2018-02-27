@@ -1,4 +1,4 @@
-\documentclass[11pt, oneside]{article}   	% use "amsart" instead of "article" for AMSLaTeX format
+\documentclass[11pt, oneside, twocolumn]{article}   	% use "amsart" instead of "article" for AMSLaTeX format
 \usepackage[margin=0.75in]{geometry}                		% See geometry.pdf to learn the layout options. There are lots.
 \geometry{letterpaper}                   		% ... or a4paper or a5paper or ... 
 %\geometry{landscape}                		% Activate for rotated page geometry
@@ -8,6 +8,7 @@
 \usepackage{amssymb}
 \usepackage[english]{babel}
 \usepackage{csquotes}
+\usepackage{amsmath}
 
 \usepackage[backend=biber]{biblatex}
 \addbibresource{basic.bib}
@@ -60,11 +61,22 @@ To adapt this procedure for the DeepIV method, we replace the two-stage least sq
 
 The policy and response networks have three hidden layers with 128, 64, and 32 hidden units respectively. The policy network takes in the exogenous $z$ and control variables $x$ as input to predict $p$ using tanh acitvation functions for each layer and a mixture of Gaussian output with 10 components. The predicted $\hat{p}$ from the policy network and $x$ are then fed into the response network to yield predictions $\hat{y}$. The repsone network performs ReLU activation functions for the three hidden layers and linear activation for the output. \\
 
-Both networks use Adam Optimization with learning rate $=.001$, $\beta_1 = .9$, $\beta_2 = .999$, and $\epsilon = 1e-08$. For training we use L2 regularized weight decay set to $0.001$, a dropout rate of $min(1000/(1000+n); 0.5)$, $(1.5 \times 10^6/n)$ epochs, and batch size $100$. 
+Both networks use Adam Optimization with learning rate $=0.001$, $\beta_1 = 0.9$, $\beta_2 = 0.999$, and $\epsilon = 1e-08$. For training we use L2 weight decay with penalty parameter $0.001$, a dropout rate of $\textrm{min}(1000/(1000+n); 0.5)$, $(1.5 \times 10^6/n)$ epochs, and batch size $100$. 
 
 
 \section{Experiment}
 \subsection{Motivation and Design}
+As a proof-of-concept, we evaluate our approach on simulated data, testing DeepIV's ability to recover an underlying causal relationship in a low-dimensional domain. We compared our DeepIV architecture to a single-stage feed-forward network with the same architecture as our  DeepIV \emph{response} stage. 
+
+\subsection{Simulated Data}
+Our simulation models a DGP similar to that described in Section 2. For ease of explanation, we ground our simulation in a typical real-world IV application: estimating the effect of price on sales of some product (say, hotel bookings). We begin by assuming seven customer types, $s \in \{1,...,7\}$ which each exhibit different levels of price sensitivity. Customer price sensitivity varies according to a complex non-linear function of time.
+\begin{gather*}
+\psi_t = 2\big((t-5)^4/600 + \textrm{exp}\big[-4(t-5)^2\big] + t/10 - 2 \big)\\
+t \sim \textrm{unif}(0,10)
+\end{gather*}
+Prices are a function of observed variable $t$ and some instrument $z$, on the basis that the hotel chooses their price to move with average price sensitivity. In the hotel example, the high demand resulting from some unobserved confounding variable (e.g. a nearby conference) breaks the conditional independence between our policy variable $p$ (price) and the latent effects $e$. We model this by generating our errors $e$ with parameter $\rho$ that denotes the correlation between $p$ and $e$; in other words, it reflects the extent of endogeneity in our population model. 
+
+
 What is the simulated data and why are we doing it @cwalker4
 
 \subsection{Preliminary Results} 
