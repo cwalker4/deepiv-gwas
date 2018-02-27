@@ -114,7 +114,7 @@ def demand(n, ypcor, seed=1, ynoise=1., pnoise=1., test=False):
     price = price + v
     price = (price - pmu)/psd
 
-    # observable demand function (hotels observe average price sensitivity and
+    # observable demand function (e.g. hotels observe average price sensitivity and
     # the time of the year
     x = np.concatenate([time.reshape((-1,1)), emotion], axis=1)
     g = lambda x, z, p: storeg(x, p)
