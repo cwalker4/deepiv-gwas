@@ -7,12 +7,12 @@ pmu = 17.779
 ysd = 158.
 ymu = -292.1
 
-def monte_carlo_error(g_hat, data_fn, ntest=5000):
+def monte_carlo_error(g_hat, rho, data_fn, ntest):
     '''
     Monte Carlo simulation to compare an estimated function to ground truth
     '''
     seed = np.random.randint(1e9)
-    x, z, p, y, g_true = demand(ntest, seed, test=True)
+    x, z, p, y, g_true = demand(ntest, ypcor=rho, seed=seed, test=True)
 
     p = np.linspace(np.percentile(p, 2.5), np.percentile(p, 97.5), ntest).reshape(-1,1)
     y = g_true(x, z, p)
@@ -34,28 +34,6 @@ def one_hot(col, **kwargs):
     enc = OneHotEncoder(sparse=False, **kwargs)
     return enc.fit_transform(z)
 
-def get_test_valid_train(n, batch_size, seed, **kwargs):
-    '''
-    Generates train, validate, and test data simulations with IV model
-
-    Arguments:
-    n -- number of observations to generate
-    batch_size -- size of batches
-    seed -- random seed
-
-    Returns:
-    x, z, t, y, g for train, validate, and test sets
-    '''
-    x, z, t, y, g = demand(n=int(n*0.6), seed=seed, **kwargs)
-    train = prepare_datastream(x, z, t, y, True, batch_size, **kwargs)
-    x, z, t, y, g = demand(n=int(n*0.2), seed=seed+1, **kwargs)
-    valid = prepare_datastream(x, z, t, y, False, batch_size, **kwargs)
-    x, z, t, y, g = demand(n=int(n*0.2), seed=seed+2, **kwargs)
-    test = prepare_datastream(x, z, t, y, False, batch_size, **kwargs)
-    return train, valid, test, g
-
-# defines a complex non-linear function mapping consumer type x to a value
-# for price sensitivity
 def sensf(x):
     '''
     Calculates price sensitivity via a complex non-linear function of time
@@ -101,7 +79,7 @@ def storeg(x, p):
     y = (g - ymu)/ysd
     return y.reshape(-1, 1)
 
-def demand(n, seed=1, ynoise=1., pnoise=1., ypcor=0.8, test=False):
+def demand(n, ypcor, seed=1, ynoise=1., pnoise=1., test=False):
     '''
     Generates full simulated demand data via process described in deepiv_proposal
 
@@ -142,7 +120,8 @@ def demand(n, seed=1, ynoise=1., pnoise=1., ypcor=0.8, test=False):
     g = lambda x, z, p: storeg(x, p)
 
     # errors
-    e = (ypcor*ynoise/pnoise)*v + rng.randn(n)*ynoise*np.sqrt(1-ypcor**2)
+    print("YPCOR = %f" % ypcor)
+    e = (ypcor*ynoise/pnoise)*v + rng.randn(n)*ynoise*np.sqrt(1-(ypcor**2))
     e = e.reshape(-1, 1)
 
     # response

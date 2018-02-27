@@ -66,7 +66,9 @@ def one_stage(n, rho):
                    verbose=0)
 
     performance = data_simulator.monte_carlo_error(lambda x,z,p: oneStageNN.predict(policy),
-                                                   data_simulator.demand, ntest=n)
+                                                   rho=rho,
+                                                   data_fn=data_simulator.demand,
+                                                   ntest=n)
 
     return performance
 

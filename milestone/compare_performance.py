@@ -5,42 +5,42 @@ import one_stage_nn
 import deepiv_simulation
 import time
 
-n_simulations = 30 # number of draws from the DGP per sample size and rho
+n_simulations = 1 # number of draws from the DGP per sample size and rho
 rhos = [0.1, 0.25, 0.5, 0.75, 0.9]
-sample_sz = [1000, 5000, 10000, 20000]
+sample_sz = [1000, 5000, 10000, 20000] # if we want to test against diff sample sizes
 
-deep_perf = np.zeros((n_simulations, len(sample_sz), len(rhos)))
+deep_perf = np.zeros((n_simulations, len(rhos)))
 ffn_perf = np.zeros_like(deep_perf)
 
+n = 10000
 for i, rho in enumerate(rhos):
-    for j, n in enumerate(sample_sz):
-        avg_deep = 0
-        avg_ffn = 0
-        for k in range(n_simulations):
-            tic = time.time()
-            print(i, j, k)
-            
-            print("Fitting deepiv")
-            dp = deepiv_simulation.deepiv(n, rho)
-            print("Fitting FFN")
-            fp = one_stage_nn.one_stage(n, rho)
-            deep_perf[k, j, i] = dp
-            ffn_perf[k, j, i] = fp
-            avg_deep += dp
-            avg_ffn += fp
-            print(dp, fp)
-            toc = time.time()
+    avg_deep = 0
+    avg_ffn = 0
+    for j in range(n_simulations):
+        tic = time.time()
+        print(i, j)
+        
+        print("Fitting deepiv")
+        dp = deepiv_simulation.deepiv(n, rho)
+        print("Fitting FFN")
+        fp = one_stage_nn.one_stage(n, rho)
+        deep_perf[j, i] = dp
+        ffn_perf[j, i] = fp
+        avg_deep += dp
+        avg_ffn += fp
+        print(dp, fp)
+        toc = time.time()
 
-            print("Time for iteration: %.4f" % (toc - tic))
+        print("Time for iteration: %.4f" % (toc - tic))
 
-        avg_deep = avg_deep / n_simulations
-        avg_ffn = avg_ffn/ n_simulations
-        print("For rho = %f, n = %d" % (rho, n))
-        print("Avg ffn: %.5f" % avg_ffn)
-        print("Avg deep: %.5f" % avg_deep)
+    avg_deep = avg_deep / n_simulations
+    avg_ffn = avg_ffn/ n_simulations
+    print("For rho = %f" % rho)
+    print("Avg ffn: %.5f" % avg_ffn)
+    print("Avg deep: %.5f" % avg_deep)
 
-np.savetxt('simulation_results/ffn.csv', ffn_perf, delim=',')
-np.savetxt('simulation_results/deep.csv', deep_perf, delim=',')
+np.savetxt('simulation_results/ffn.csv', ffn_perf, delimiter=',')
+np.savetxt('simulation_results/deep.csv', deep_perf, delimiter=',')
         
                 
 

@@ -26,6 +26,7 @@ print("Data shapes:\n\
                                  'p':p.shape, 'y':y.shape}))
 '''
 
+
 def deepiv(n, rho):
     '''
     Generates simulated data and runs both stages of the deepiv architecture
@@ -92,7 +93,9 @@ def deepiv(n, rho):
                        batch_size=batch_size, samples_per_batch=2)
 
     performance = data_simulator.monte_carlo_error(lambda x,z,p: response_model.predict([x,p]), 
-                                                   data_simulator.demand, ntest=n)
+                                                   rho=rho,
+                                                   data_fn = data_simulator.demand, 
+                                                   ntest=n)
     return performance
 
 
