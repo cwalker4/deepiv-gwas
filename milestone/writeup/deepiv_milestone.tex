@@ -74,10 +74,16 @@ Our simulation models a DGP similar to that described in Section 2. For ease of 
 \psi_t = 2\big((t-5)^4/600 + \textrm{exp}\big[-4(t-5)^2\big] + t/10 - 2 \big)\\
 t \sim \textrm{unif}(0,10)
 \end{gather*}
-Prices are a function of observed variable $t$ and some instrument $z$, on the basis that the hotel chooses their price to move with average price sensitivity. In the hotel example, the high demand resulting from some unobserved confounding variable (e.g. a nearby conference) breaks the conditional independence between our policy variable $p$ (price) and the latent effects $e$. We model this by generating our errors $e$ with parameter $\rho$ that denotes the correlation between $p$ and $e$; in other words, it reflects the extent of endogeneity in our population model. 
+Prices are a function of observed variable $t$ and some instrument $z$, on the basis that the hotel chooses their price to move with average price sensitivity. In the hotel example, the high demand resulting from some unobserved confounding variable (e.g. a nearby conference) breaks the conditional independence between our policy variable $p$ (price) and the latent effects $e$. We model this by generating our errors $e$ with parameter $\rho$ that denotes the correlation between $p$ and $e$; in other words, it reflects the extent of endogeneity in our population model. Our outcome variable $y$ (sales) is then generated as:
+\begin{gather*}
+y = 100 + (100 + p)s\psi_t - 2p + e \\
+p = 25 + (z + 3)\psi_t + v \\
+z, v \sim \mathcal{N}(0,1) \\
+e \sim \mathcal{N}(\rho v, 1 - \rho^2)
+\end{gather*}
+The causal relationship we wish to uncover is $h(t, s, p) = (10 + p)s\psi_t - 2p$, but the correlation between the error $e$ and $p$ in our population model violates the unconfoundedness assumption necessary for causal interpretation, thus requiring the use of some instrument $z$. \\
 
-
-What is the simulated data and why are we doing it @cwalker4
+Since we have our ground truth causal relationship, we evaluate our model by first generating features $[t, s, p]$, but then change $p$ to a fixed grid of price values $p'$. This allows us to compare our predicted sales, $\hat{h}$ against the ground truth $h$. 
 
 \subsection{Preliminary Results} 
 Results of @billyf and @cwalker4 simulations.
