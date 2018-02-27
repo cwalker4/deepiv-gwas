@@ -50,7 +50,7 @@ To perform IV analysis one needs to find an exogenous variable that affects the 
 \begin{figure}[h]
 	\caption{Generalized Deep IV}
 	\centering
-	\includegraphics[width=0.6\textwidth]{Figure_1.png}
+	\includegraphics[width=0.5\textwidth]{Figure_1.png}
 \end{figure}
 
 Traditional IV can be estimated through a procedure called two-stage least squares (2SLS): in the first stage you regress your endogenous variable of interest, $p$,  on the exogenous instrument, $z$, to create a predicted $\hat{p}$ constructed only with the exogenous variation of $z$. In the second stage, you regress your outcome variable, $y$, on the predicted $\hat{p}$ from the first stage.\footnote{Chapter 4 of Angrist and Pischke's \emph{Mostly Harmless Econometrics: an Empiricist's Companion} provides a good introduction to instrumental variables.}\\
