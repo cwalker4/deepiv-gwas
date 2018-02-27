@@ -29,6 +29,7 @@ for i, rho in enumerate(rhos):
         avg_deep += dp
         avg_ffn += fp
         print(dp, fp)
+        print(fp)
         toc = time.time()
 
         print("Time for iteration: %.4f" % (toc - tic))

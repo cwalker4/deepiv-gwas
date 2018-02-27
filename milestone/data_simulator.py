@@ -7,7 +7,7 @@ pmu = 17.779
 ysd = 158.
 ymu = -292.1
 
-def monte_carlo_error(g_hat, rho, data_fn, ntest):
+def monte_carlo_error(g_hat, rho, ntest):
     '''
     Monte Carlo simulation to compare an estimated function to ground truth
     '''
@@ -79,15 +79,13 @@ def storeg(x, p):
     y = (g - ymu)/ysd
     return y.reshape(-1, 1)
 
-def demand(n, ypcor, seed=1, ynoise=1., pnoise=1., test=False):
+def demand(n, ypcor, seed=1, test=False):
     '''
     Generates full simulated demand data via process described in deepiv_proposal
 
     Arguments:
     n -- number of observations
     seed -- random seed
-    ynoise -- noise on sales
-    pnoise -- noise on price
     ypcor -- amount of endogeneity
 
     Returns:
@@ -109,7 +107,7 @@ def demand(n, ypcor, seed=1, ynoise=1., pnoise=1., test=False):
 
     # z -> price
     # calculate price -> add noise (v) -> normalize
-    v = rng.randn(n)*pnoise
+    v = rng.randn(n)
     price = sensf(time)*(z + 3) + 25.
     price = price + v
     price = (price - pmu)/psd
@@ -120,8 +118,7 @@ def demand(n, ypcor, seed=1, ynoise=1., pnoise=1., test=False):
     g = lambda x, z, p: storeg(x, p)
 
     # errors
-    print("YPCOR = %f" % ypcor)
-    e = (ypcor*ynoise/pnoise)*v + rng.randn(n)*ynoise*np.sqrt(1-(ypcor**2))
+    e = ypcor*v + rng.randn(n)*np.sqrt(1-(ypcor**2))
     e = e.reshape(-1, 1)
 
     # response

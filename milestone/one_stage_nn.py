@@ -6,6 +6,7 @@ import tensorflow as tf
 from keras.layers import Input, Dense, Activation
 from keras.layers import Dropout
 from keras.models import Sequential
+from keras.layers.merge import Concatenate
 
 import keras.backend as K
 K.set_image_data_format('channels_last')
@@ -15,6 +16,8 @@ from matplotlib.pyplot import imshow
 import data_simulator
 
 import pdb
+
+import data_generator
 
 '''
 x, z, p, y, g_true = data_simulator.demand(n, ypcor=0.5)
@@ -49,6 +52,10 @@ def onestage_model(n):
     
     return oneStageNN
 
+def g_hat_helper(pred_fn, x, p):
+    policy = np.concatenate((x, p), axis=1)
+    return pred_fn(policy)
+
 def one_stage(n, rho):
     epochs = int(1500000./float(n)) # heuristic to get epochs
     batch_size = 100
@@ -65,10 +72,11 @@ def one_stage(n, rho):
     oneStageNN.fit(policy, y, epochs=epochs, batch_size=batch_size,
                    verbose=0)
 
-    performance = data_simulator.monte_carlo_error(lambda x,z,p: oneStageNN.predict(policy),
-                                                   rho=rho,
-                                                   data_fn=data_simulator.demand,
+    performance = data_simulator.monte_carlo_error(lambda x,z,p: g_hat_helper(oneStageNN.predict, x, p),
+                                                   rho=0,
                                                    ntest=n)
 
+#    performance = data_generator.monte_carlo_error(lambda x,z,p: g_hat_helper(oneStageNN.predict, x, p),
+#                                                   data_generator.demand)
     return performance
 

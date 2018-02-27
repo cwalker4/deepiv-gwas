@@ -51,7 +51,7 @@ def deepiv(n, rho):
 
     hidden = [128, 64, 32]
 
-    activation = "tanh" # TODO: try relu?
+    activation = "tanh" 
     l2_reg = 0.0001
 
     n_components = 10
@@ -93,8 +93,7 @@ def deepiv(n, rho):
                        batch_size=batch_size, samples_per_batch=2)
 
     performance = data_simulator.monte_carlo_error(lambda x,z,p: response_model.predict([x,p]), 
-                                                   rho=rho,
-                                                   data_fn = data_simulator.demand, 
+                                                   rho=0,
                                                    ntest=n)
     return performance
 
