@@ -35,6 +35,10 @@
 \maketitle
 \section{Introduction}
 @jandraka 
+ The genome-wide association study (GWAS) is an experimental design used to detect associations between genetic variants and traits in samples from populations and has served as a main driver of understanding the relationship between gene expression and phenotype.\textsuperscript{[2,3]} However, since traditional GWAS study designs run several thousand to million t-tests simultaneously they can only identify gene variants with large effect size. This is in contrast with the current hypothesis of genetic architecture that posits many gene variants acting in tandem to produce a phenotypic trait, each with small effect size.\textsuperscript{[4]} \\
+ 
+ Despite the development of many sophisticated modern statistical techniques to deal with complicated interactions like the ones between genes, GWAS is plagued by counfoundedness. Gene expression and phenotype directly influence each other, rendering simple prediction or correlations between the two useless. While neural networks seem to provide the best ability to uncover complicated interactions between genes, they are not built to parse through endogeneity.  To address these shortcomings we will employ the Deep IV methodology, a two-stage multiplayer perceptron model designed to use exogenous instruments $z$ to identify the direct causal relationship of some policy variable $p$ on outcome $y$. In our case, we want to use random gene mutations to characterize the causal effect of gene expression on phenotype.\\
+ 
 
 \section{Algorithm}
 \subsection{Overview}
