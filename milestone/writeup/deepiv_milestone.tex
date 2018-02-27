@@ -35,11 +35,15 @@
 \begin{document}
 \maketitle
 \section{Introduction}
- The genome-wide association study (GWAS) is an experimental design used to detect associations between genetic variants and traits in samples from populations and has served as a main driver of understanding the relationship between gene expression and phenotype.\textsuperscript{[2,3]} However, since traditional GWAS study designs run several thousand to million t-tests simultaneously they can only identify gene variants with large effect size. This is in contrast with the current hypothesis of genetic architecture that posits many gene variants acting in tandem to produce a phenotypic trait, each with small effect size.\textsuperscript{[4]} \\
- 
- Despite the development of many sophisticated modern statistical techniques to deal with complicated interactions like the ones between genes, GWAS is plagued by counfoundedness. Gene expression and phenotype directly influence each other, rendering simple prediction or correlations between the two useless. While neural networks seem to provide the best ability to uncover complicated interactions between genes, they are not built to parse through endogeneity.  To address these shortcomings we will employ the Deep IV methodology, a two-stage multiplayer perceptron model designed to use exogenous instruments $z$ to identify the direct causal relationship of some policy variable $p$ on outcome $y$. In our case, we want to use random gene mutations to characterize the causal effect of gene expression on phenotype.\\
- 
- @jandaraka Write about why this is such a big deal for GWAS and then why GWAS is such a big deal. 
+Breast cancer accounts for over 25\% of cancer diagnoses and 15\% of cancer-related deaths in women.\textsuperscript{[1]} Ten percent of women with breast cancer have a family history of disease. Women with one premenopausal first-degree relative with breast cancer are at 3.3-fold greater risk than women without a family history,\textsuperscript{[2]} demonstrating that there is a significant genetic contribution to breast cancer risk. To identify genetic factors associated with breast cancer, early studies employed linkage analysis and positional cloning in families with a familial history of breast cancer to discover highly penetrant susceptibility genes such as BRCA1\&2.\textsuperscript{[3]} Although these initial studies were successful and could explain about 20\% of the familial risk of breast cancer,\textsuperscript{[4]} they provided little insight into the role of genetics in nonfamilial breast cancer. \\
+
+More recently, genome-wide association studies (GWAS) have identified over 80 loci significantly associated with sporadic breast cancer. However, these variants collectively only explain 16\% of breast cancer heritability.\textsuperscript{[5]} The inability of GWAS to identify a greater proportion of the genetic risk stems from many factors, including genotyping platform limitations in interrogating rare variation (primarily due to the running of several thousand to several million t-tests simultaneously). This is in contrast with the current hypothesis of genetic architecture that posits many gene variants acting in tandem to produce a phenotypic trait, each with small effect size.\textsuperscript{[6]} The GWAS study design is also plagued by confoundedness, despite the development of many sophisticated statistical techniques to deal with complicated interactions. Simple prediction and correlation setups in breast cancer studies fail to account for this confoundedness (gene expression results in cancerous growth and cancerous growth impacts gene expression). \\
+
+Instrumental variables (IV) have proven to be an adept statistical method for addressing these issues of confoundedness. As shown in Figure 1, IV uses an exogenous instrument $z$ to identify direct causal relationships between some policy variable $p$ on outcome $y$ (a relationship confounded by latent effects $e$). In the case of genetics studies, Mendelian randomization of genetic variants offer up a promising instrument for estimating causal effects of gene expression on cellular phenotype, in this case if the cell is cancerous or not.\textsuperscript{[7]} In this manner, it is possible to identify low-signal, rare variants that would typically not appear in GWAS analyses, thus providing a more comprehensive mapping of the transciptome of a cell to carcinogenesis. \\
+
+Traditional IV experimental designs suffers from the limitation that they require a strong prior understanding of the data generating process (DGP), and are limited in accounting for complex interactions between covariates. Neural networks offer up a solution to this limitation, due to their ability to uncover complicated interactions between genes that are both near and distal.\textsuperscript{[8]} This project provides a proof-of-concept implementation of the Deep-IV framework, applied to characterizing the causal effect of gene expression on carcinogenesis in breast cancer using random, simple nucleotide variants (SNVs). 
+
+
 
 \section{Algorithm}
 \subsection{Overview}
@@ -59,7 +63,7 @@ Traditional IV can be estimated through a procedure called two-stage least squar
 
 To adapt this procedure for the DeepIV method, we replace the two-stage least squares with two-stage multilayer perceptrons. We call the first stage our \emph{policy network} and the second our \emph{response network}. Our first iteration is modeled off of the specification in the appendix of the seminal DeepIV paper from Hartford et al. (2017).\textsuperscript{[6]}\\
 
-The policy and response networks have three hidden layers with 128, 64, and 32 hidden units respectively. The policy network takes in the exogenous $z$ and control variables $x$ as input to predict $p$ using tanh acitvation functions for each layer and a mixture of Gaussian output with 10 components. The predicted $\hat{p}$ from the policy network and $x$ are then fed into the response network to yield predictions $\hat{y}$. The repsone network performs ReLU activation functions for the three hidden layers and linear activation for the output. \\
+The policy and response networks in our simulations below have three hidden layers with 128, 64, and 32 hidden units respectively. The policy network takes in the exogenous $z$ and control variables $x$ as input to predict $p$ using tanh acitvation functions for each layer and a Mixture of Gaussian output with 10 components. The predicted $\hat{p}$ from the policy network and $x$ are then fed into the response network to yield predictions $\hat{y}$. The repsone network performs ReLU activation functions for the three hidden layers and linear activation for the output. \\
 
 Both networks use Adam Optimization with learning rate $=0.001$, $\beta_1 = 0.9$, $\beta_2 = 0.999$, and $\epsilon = 1e-08$. For training we use L2 weight decay with penalty parameter $0.001$, a dropout rate of $\textrm{min}(1000/(1000+n); 0.5)$, $(1.5 \times 10^6/n)$ epochs, and batch size $100$. 
 
@@ -81,11 +85,11 @@ p = 25 + (z + 3)\psi_t + v \\
 z, v \sim \mathcal{N}(0,1) \\
 e \sim \mathcal{N}(\rho v, 1 - \rho^2)
 \end{gather*}
-The causal relationship we wish to uncover is $h(t, s, p) = (10 + p)s\psi_t - 2p$, but the correlation between the error $e$ and $p$ in our population model violates the unconfoundedness assumption necessary for causal interpretation, thus requiring the use of some instrument $z$. \\
+The causal relationship we wish to uncover is $h(t, s, p) = (10 + p)s\psi_t - 2p$, but the correlation between the error $e$ and $p$ in our population model violates the unconfoundedness assumption necessary for causal interpretation. \\
 
 Since we have our ground truth causal relationship, we evaluate our model by first generating features $[t, s, p]$, but then change $p$ to a fixed grid of price values $p'$. This allows us to compare our predicted sales, $\hat{h}$ against the ground truth $h$. 
 
-\subsection{Preliminary Results} 
+\subsection{Results} 
 Results of @billyf and @cwalker4 simulations.
 
 \section{Data}
