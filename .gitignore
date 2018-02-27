@@ -45,3 +45,6 @@
 *.synctex.gz(busy)
 *.pdfsync
 .Rproj.user
+
+# Python cache
+*.pyc
