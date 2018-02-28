@@ -1,3 +1,11 @@
+'''
+This file runs an experiment comparing the ability of two network architectures (DeepIV
+and FFNet) at recovering a counterfacutal function from simulated data. MSE is calculated
+for simulated data with varying levels of endogeneity and different sample sizes. 
+
+'''
+
+
 import numpy as np
 from matplotlib import pyplot as plt
 
