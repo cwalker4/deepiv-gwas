@@ -1,6 +1,4 @@
 library(tidyverse)
-library(here)
-
 
 deep <- read_csv('/Users/Walker/Desktop/Winter/CS230/deepiv-gwas/milestone/simulation_results/deep_big.csv',
                      col_names=FALSE)
