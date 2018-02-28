@@ -14,19 +14,6 @@ from keras.layers import Input, Dense
 from keras.models import Model
 from keras.layers.merge import Concatenate
 
-'''
-no longer used, but holding onto it in case we want it l8r :) 
-x, z, p, y, g_true = data_simulator.demand(n, ypcor=0.5)
-
-print("Data shapes:\n\
-        Features:{x} \n\
-        Instruments: {z} \n\
-        Policy: {p} \n\
-        Response: {y}".format(**{'x':x.shape, 'z':z.shape,
-                                 'p':p.shape, 'y':y.shape}))
-'''
-
-
 def deepiv(n, rho):
     '''
     Generates simulated data and runs both stages of the deepiv architecture
