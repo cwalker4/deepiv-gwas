@@ -19,18 +19,17 @@ import pdb
 
 import data_generator
 
-'''
-x, z, p, y, g_true = data_simulator.demand(n, ypcor=0.5)
-
-print("Data shapes:\n\
-        Features:{x} \n\
-        Instruments: {z} \n\
-        Policy: {p} \n\
-        Response: {y}".format(**{'x':x.shape, 'z':z.shape,
-                              'p':p.shape, 'y':y.shape}))
-
-'''
 def onestage_model(n):
+    '''
+    Defines a one stage model with architecture outlined in milestone
+
+    Arguments:
+    n -- sample size
+
+    Returns:
+    oneStageNN -- model
+
+    '''
     hidden = [128, 64, 32]
     l2_reg = 0.0001
     dropout_rate = min(1000./(1000. + n), 0.5)
@@ -53,10 +52,33 @@ def onestage_model(n):
     return oneStageNN
 
 def g_hat_helper(pred_fn, x, p):
+    '''
+    Helper function for feeding our predicted model into function calculating MSE
+
+    Arguments:
+    pred_fn -- trained model
+    x -- simulated covariates
+    p -- policy variable
+
+    Returns:
+    pred_fn -- Function making predictions at x and p
+
+    '''
     policy = np.concatenate((x, p), axis=1)
     return pred_fn(policy)
 
 def one_stage(n, rho):
+    '''
+    Fits one_stage FFNet on simulated data and calculates counterfactual MSE
+
+    Arguments:
+    n -- number of observations
+    rho -- float in (0, 1) denoting amount of endogeneity in the simulated data
+
+    Returns:
+    performance -- counterfactual MSE of one stage model
+
+    '''
     epochs = int(1500000./float(n)) # heuristic to get epochs
     batch_size = 100
 
@@ -76,7 +98,5 @@ def one_stage(n, rho):
                                                    rho=0,
                                                    ntest=n)
 
-#    performance = data_generator.monte_carlo_error(lambda x,z,p: g_hat_helper(oneStageNN.predict, x, p),
-#                                                   data_generator.demand)
     return performance
 
