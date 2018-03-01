@@ -1,0 +1,4 @@
+#!/bin/bash
+mkdir gdc
+./gdc-client download -m gdc_manifest_20180301_063121.txt -d gdc/
+
