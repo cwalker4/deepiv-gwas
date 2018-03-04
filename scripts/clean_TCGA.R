@@ -3,6 +3,7 @@ library(tidyr)
 library(dplyr)
 library(readr)
 
+
 #Read in id to filename crosswalk
 crosswalk <- read_delim(here::here("raw_data", "TCGA", "Manifest.txt"), delim = '\t')
 
@@ -37,15 +38,29 @@ unique(sep_files$c)
 
 
 
-# CLEANING THE DATA, ALTHOUGHT ALL OF THIS WAS DONE NAIVELY BEFORE ANALYZING WHAT THE HELL ALL THE FILE
-# NAMES WERE AND IS ALSO TOO SLOW
+# CLEANING THE DATA
+sep_files %>%
+  filter(a == "FPKM") -> mRNA_data_sep
 
+length(unique(mRNA_data_sep$identifier))
+
+
+mRNA_data_sep %>%
+  mutate(filename = paste(identifier,a, b, c, sep = ".")) %>%
+  select(folder, filename) -> mRNA_data
+
+         
 full_data <-data.frame('Gene'= 'filler')
 
 #THIS IS TOO SLOW, SOMEHOW NEED TO VECTORIZE (LAPPLY)
-for(i in crosswalk$filename[1:500]) {
-  obv <- read_delim(here::here("raw_data", "TCGA", i), delim = '\t', col_names = c("Gene", "Expression"))
+for(i in 1:nrow(mRNA_data)) {
+  obv <- read_delim(here::here("raw_data", "TCGA", as.character(mRNA_data[i,1]), as.character(mRNA_data[i,2])), delim = '\t', col_names = c("Gene", "Expression"), progress = FALSE)
   full_data <- full_join(full_data, obv, 'Gene')
+  print(i)
 }
 
+full_data <- full_data[-1,]
+colnames(full_data) <- c("Gene", 1:nrow(mRNA_data))
+
+write_csv(full_data, here::here("derived_data", "cleaned_TCGA_mRNA.csv"))
 
