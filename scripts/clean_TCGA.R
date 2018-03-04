@@ -2,7 +2,7 @@ library(here)
 library(tidyr)
 library(dplyr)
 library(readr)
-
+library(maftools)
 
 #Read in id to filename crosswalk
 crosswalk <- read_delim(here::here("raw_data", "TCGA", "Manifest.txt"), delim = '\t')
@@ -37,7 +37,7 @@ unique(sep_files$c)
 
 #---------------------------------------------------#
 
-# CLEANING THE DATA
+# CLEANING THE mRNA expression DATA
 sep_files %>%
   filter(a == "FPKM") -> mRNA_data_sep
 
@@ -61,3 +61,20 @@ colnames(full_data) <- c("Gene", 1:nrow(mRNA_data))
 
 write_csv(full_data, here::here("derived_data", "cleaned_TCGA_mRNA.csv"))
 
+# Cleaning the sequencing data
+
+sep_files %>%
+  filter(a == "BRCA") -> mut_data_sep
+
+mut_data_sep %>%
+  mutate(filename = paste(identifier,a, b, c, sep = ".")) %>%
+  select(folder, filename) -> mut_data
+
+print(mut_data_sep$b)
+
+gene_varscan <- read.maf(here::here("raw_data", "TCGA", as.character(mut_data[1,1]), as.character(mut_data[1,2])))
+gene_somaticsniper <- read.maf(here::here("raw_data", "TCGA", as.character(mut_data[2,1]), as.character(mut_data[2,2])))
+gene_mutect <- read.maf(here::here("raw_data", "TCGA", as.character(mut_data[3,1]), as.character(mut_data[3,2])))
+gene_muse <- read.maf(here::here("raw_data", "TCGA", as.character(mut_data[4,1]), as.character(mut_data[4,2])))
+
+as.character(mut_data[i,1])
