@@ -81,6 +81,11 @@ gene_muse <- read.maf(here::here("raw_data", "TCGA", as.character(mut_data[4,1])
 as.character(mut_data[i,1])
 
 # UUID to TCGA BARCODE CROSSWALK
+
+
+UUIDS <- as.data.frame(mRNA_data_sep$identifier)
+write_csv(UUIDS, here::here("derived_data", "gdc_uuids.txt"))
+
  
 manifest=read.table(here::here("raw_data", "gdc_manifest.txt"),header = T)
 manifest_length= nrow(manifest)
