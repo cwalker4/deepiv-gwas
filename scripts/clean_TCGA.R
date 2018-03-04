@@ -23,10 +23,6 @@ crosswalk %>%
   separate('filename', into = c('identifier', 'a', 'b', 'c'), sep = '\\.', extra = 'merge') %>%
   select(-md5, -size, -state) -> sep_files
 
-# files %>%
-# #  separate('V1', into = c("folder", "filename"), sep = '/', extra = 'merge') %>%
-#   separate('V1', into = c('identifier', 'a', 'b', 'c'), sep = '\\.', extra = 'merge') -> sep_files
-
 # Lets figure out if these are related somehow
 length(unique(sep_files$folder)) 
 length(unique(sep_files$identifier))
