@@ -12,19 +12,18 @@ no_ids <- crosswalk[6085:6258,]
 crosswalk <- crosswalk[1:6084,]
 
 # Figure out what's going on relating all these file and folder names
+# Each row in the Manifest.txt has a folder and then a filename. That filename is broken up into some strange 
+# 'identifier' and then a suffix broken apart by three periods
 
 files <- as.data.frame(crosswalk$filename)
 colnames(files) <- 'V1'
 
-# Each row in the Manifest.txt has a folder and then a filename. That filename is broken up into some strange 
-# 'identifier' and then a suffix broken apart by three periods
 files %>%
   separate('V1', into = c("folder", "filename"), sep = '/', extra = 'merge') %>%
   separate('filename', into = c('identifier', 'a', 'b', 'c'), sep = '\\.', extra = 'merge') -> sep_files
 
 # Lets figure out if these are related somehow
 length(unique(sep_files$folder)) 
-
 length(unique(sep_files$identifier))
 identifiers <- sep_files$identifier
 
@@ -36,7 +35,7 @@ unique(sep_files$c)
 # Ultimately, looking at all of this, what are the actual files that we care about. It seems we probably 
 # do not have 6048 observations. 
 
-
+#---------------------------------------------------#
 
 # CLEANING THE DATA
 sep_files %>%
@@ -44,17 +43,15 @@ sep_files %>%
 
 length(unique(mRNA_data_sep$identifier))
 
-
 mRNA_data_sep %>%
   mutate(filename = paste(identifier,a, b, c, sep = ".")) %>%
   select(folder, filename) -> mRNA_data
 
-         
 full_data <-data.frame('Gene'= 'filler')
 
 #THIS IS TOO SLOW, SOMEHOW NEED TO VECTORIZE (LAPPLY)
 for(i in 1:nrow(mRNA_data)) {
-  obv <- read_delim(here::here("raw_data", "TCGA", as.character(mRNA_data[i,1]), as.character(mRNA_data[i,2])), delim = '\t', col_names = c("Gene", "Expression"), progress = FALSE)
+  obv <- read_delim(here::here("raw_data", "TCGA", as.character(mRNA_data[i,1]), as.character(mRNA_data[i,2])), delim = '\t', col_names = c("Gene", "Expression"))
   full_data <- full_join(full_data, obv, 'Gene')
   print(i)
 }
