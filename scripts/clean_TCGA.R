@@ -3,9 +3,10 @@ library(tidyr)
 library(dplyr)
 library(readr)
 library(maftools)
+library(TCGAbiolinks)
 
 #Read in id to filename crosswalk
-crosswalk <- read_delim(here::here("raw_data", "TCGA", "Manifest.txt"), delim = '\t')
+crosswalk <- read_delim(here::here("raw_data", "gdc_manifest.txt"), delim = '\t')
 
 #Select only the 6084 observations. Keep around the rest without ids. 
 no_ids <- crosswalk[6085:6258,]
