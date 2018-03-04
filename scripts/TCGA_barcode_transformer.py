@@ -7,7 +7,7 @@ filepath = "/Users/billyf/deepiv-gwas/derived_data/gdc_uuids.txt"
 
 def getUUIDs():
     file = open(filepath, "r")
-    UUIDs = file.read().split(",")
+    UUIDs = file.read().split("\n")
     return UUIDs
 
 def barcode(UUID):
