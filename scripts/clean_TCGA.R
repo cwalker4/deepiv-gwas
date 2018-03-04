@@ -79,3 +79,32 @@ gene_mutect <- read.maf(here::here("raw_data", "TCGA", as.character(mut_data[3,1
 gene_muse <- read.maf(here::here("raw_data", "TCGA", as.character(mut_data[4,1]), as.character(mut_data[4,2])))
 
 as.character(mut_data[i,1])
+
+# UUID to TCGA BARCODE CROSSWALK
+ 
+manifest=read.table(here::here("raw_data", "gdc_manifest.txt"),header = T)
+manifest_length= nrow(manifest)
+id= toString(sprintf('"%s"', manifest$id))
+
+Part1= '{"filters":{"op":"in","content":{"field":"files.file_id","value":[ '
+
+Part2= '] }},"format":"TSV","fields":"file_id,file_name,cases.submitter_id,cases.case_id,data_category,data_type,cases.samples.tumor_descriptor,cases.samples.tissue_type,cases.samples.sample_type,cases.samples.submitter_id,cases.samples.sample_id,cases.samples.portions.analytes.aliquots.aliquot_id,cases.samples.portions.analytes.aliquots.submitter_id","size":'
+
+Part3= paste(shQuote(manifest_length),"}",sep="")
+
+Sentence= paste(Part1,id,Part2,Part3, collapse=" ")
+
+write.table(Sentence,here::here("derived_data", "Payload.txt"),quote=F,col.names=F,row.names=F)
+
+require(httr)
+
+files_endpt = "https://gdc-api.nci.nih.gov/files"
+
+body = list("filters" = list("op" = "in", "content" = list('field'='files.file_id', 'value'='af5085c1-5b4e-4b88-9f5f-3c049cdd981f')), 'format' = 'TSV', 'fields'="file_id,file_name,cases.case_id,cases.submitter_id,cases.samples.sample_id,cases.samples.submitter_id,cases.samples.portions.analytes.aliquots.aliquot_id,cases.samples.portions.analytes.aliquots.submitter_id,cases.samples.sample_type,cases.samples.tissue_type,data_category,data_type", 'size' = 1)
+
+r <- POST(url = files_endpt, body = body, encode = 'json')
+
+content(r, 'parsed')
+
+content(r)$cases_0_submitter_id
+
