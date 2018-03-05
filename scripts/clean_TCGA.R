@@ -25,12 +25,6 @@ crosswalk %>%
   separate('filename', into = c('identifier', 'a', 'b', 'c'), sep = '\\.', extra = 'merge') %>%
   select(-md5, -size, -state) -> sep_files
 
-
-# Ultimately, looking at all of this, what are the actual files that we care about. It seems we probably 
-# do not have 6048 observations. 
-
-#---------------------------------------------------#
-
 #=================
 # Loading and cleaning the mRNA expression data
 #=================
@@ -66,8 +60,9 @@ write_csv(full_data, here::here("derived_data", "cleaned_TCGA_mRNA.csv"))
 #   print(i)
 # }
 
-
+#=================
 # Cleaning the sequencing data
+#=================
 
 sep_files %>%
   filter(a == "BRCA") -> mut_data_sep
@@ -85,7 +80,10 @@ gene_muse <- read.maf(here::here("raw_data", "TCGA", as.character(mut_data[4,1])
 
 as.character(mut_data[i,1])
 
+
+#=================
 # UUID to TCGA BARCODE CROSSWALK
+#=================
 
 UUIDS <- as.data.frame(mRNA_data_sep$folder)
 colnames(UUIDS) <- "UUID"
