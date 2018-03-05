@@ -1,5 +1,6 @@
 library(here)
 library(tidyverse)
+library(reshape2)
 library(maftools)
 library(TCGAbiolinks)
 
@@ -31,25 +32,12 @@ gene_mutect@data %>%
   parse_barcode() %>%
   inner_join(uuid_tcid, by = "tcid") -> mutect_data
 
-#=============
-# BILLYS TEST CODE
-#=============
-
-mutect_data[1:30,] -> test
-
-test %>%
-  spread(hugo, 1,fill = 0)-> what
-
+# widening data
 mutect_data %>%
-  spread(hugo, 1, fill = 0) -> what
+  select(hugo, uuid = UUID) %>%
+  group_by(hugo, uuid) %>%
+  summarise(count = n()) %>%
+  spread(uuid, count, fill = 0) -> mutect_wide
 
-mutect_data[26902:26904,] -> why
-
-obv_mutect <- data.frame("barcode" = unique(mutect_data$Tumor_Sample_Barcode))
-parse_obv_mutect <- parse_barcode(obv_mutect)
-parse_uuid_to_barcode <- parse_barcode(uuid_to_barcode)
-
-parse_obv_mutect %>%
-  inner_join(parse_uuid_to_barcode, by = "participant") -> joined
 
 
