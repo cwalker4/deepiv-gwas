@@ -5,6 +5,8 @@ library(readr)
 library(maftools)
 library(TCGAbiolinks)
 
+source(here::here("scripts", "get_barcode.R"))
+
 #Read in id to filename crosswalk
 crosswalk <- read_delim(here::here("raw_data", "gdc_manifest.txt"), delim = '\t')
 
@@ -83,8 +85,15 @@ as.character(mut_data[i,1])
 # UUID to TCGA BARCODE CROSSWALK
 
 
-UUIDS <- as.data.frame(mRNA_data_sep$identifier)
-write_csv(UUIDS, here::here("derived_data", "gdc_uuids.txt"))
+UUIDS <- as.data.frame(mRNA_data_sep$id)
+colnames(UUIDS) <- "UUID"
+UUIDS %>%
+  sapply()
+  mutate(barcode = (getBarcode(print(UUID), legacy = FALSE))$barcode) -> please
+
+results <- getBarcode(print(UUIDS[1,1]), legacy = FALSE)
+
+write_csv(UUIDS, here::here("derived_data", "gdc_uuids.txt"), col_names = FALSE)
 
  
 manifest=read.table(here::here("raw_data", "gdc_manifest.txt"),header = T)
