@@ -50,7 +50,7 @@ full_data <- full_data[, !duplicated(colnames(full_data))] # dropping duplicate 
 write_csv(full_data, here::here("derived_data", "cleaned_TCGA_mRNA.csv"))
 
 #=================
-# Cleaning the sequencing data
+# CLEANING SEQUENCING DATA
 #=================
 
 sep_files %>%
@@ -79,7 +79,10 @@ get_barcode <- function(x) {
 
 UUIDS$barcode <- sapply(as.character(UUIDS$UUID), get_barcode, USE.NAMES = FALSE)
 write_csv(UUIDS, here::here("derived_data", "gdc_uuids.txt"), col_names = FALSE)
+
+#=================
 # Priority: mutect, somaticsniper, muse, varscan
+#=================
 mutect_data <- gene_mutect@data
 
 parse_barcode <- function(barcode_data) {
@@ -88,7 +91,6 @@ parse_barcode <- function(barcode_data) {
              sep = '-', extra = 'merge') -> parsed_barcode
   return(parsed_barcode)
 }
-
 
 uuid_participant <- parse_barcode(uuid_to_barcode) 
 uuid_participant %>%
