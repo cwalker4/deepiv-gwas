@@ -5,10 +5,10 @@ library(readr)
 library(maftools)
 library(TCGAbiolinks)
 
-source(here::here("scripts", "get_barcode.R"))
+source(here::here("scripts","get_barcode.R"))
 
 #Read in id to filename crosswalk
-crosswalk <- read_delim(here::here("raw_data", "gdc_manifest.txt"), delim = '\t')
+crosswalk <- read_delim(here::here("raw_data/gdc_manifest.txt"), delim = '\t')
 
 #Select only the 6084 observations. Keep around the rest without ids. 
 no_ids <- crosswalk[6085:6258,]
@@ -25,44 +25,47 @@ crosswalk %>%
   separate('filename', into = c('identifier', 'a', 'b', 'c'), sep = '\\.', extra = 'merge') %>%
   select(-md5, -size, -state) -> sep_files
 
-# Lets figure out if these are related somehow
-length(unique(sep_files$folder)) 
-length(unique(sep_files$identifier))
-identifiers <- sep_files$identifier
-
-# what do these things mean
-unique(sep_files$a)
-unique(sep_files$b)
-unique(sep_files$c)
 
 # Ultimately, looking at all of this, what are the actual files that we care about. It seems we probably 
 # do not have 6048 observations. 
 
 #---------------------------------------------------#
 
-# CLEANING THE mRNA expression DATA
+#=================
+# Loading and cleaning the mRNA expression data
+#=================
 sep_files %>%
   filter(a == "FPKM") -> mRNA_data_sep
 
-length(unique(mRNA_data_sep$identifier))
-
+# rebuilding filename from separate columns
 mRNA_data_sep %>%
   mutate(filename = paste(identifier,a, b, c, sep = ".")) %>%
-  select(folder, filename) -> mRNA_data
+  select(folder = id, filename) -> mRNA_data
 
-full_data <-data.frame('Gene'= 'filler')
-
-#THIS IS TOO SLOW, SOMEHOW NEED TO VECTORIZE (LAPPLY)
-for(i in 1:nrow(mRNA_data)) {
-  obv <- read_delim(here::here("raw_data", "TCGA", as.character(mRNA_data[i,1]), as.character(mRNA_data[i,2])), delim = '\t', col_names = c("Gene", "Expression"))
-  full_data <- full_join(full_data, obv, 'Gene')
-  print(i)
+# unpacking and joining TCGA data
+get_expression <- function(x) {
+  folder <- as.character(x[1])
+  filename <- as.character(x[2])
+  obv <- read_delim(here::here("raw_data/TCGA", folder, filename),
+                    delim = '\t',
+                    col_names = c("Gene", folder))
+  return(obv)
 }
 
-full_data <- full_data[-1,]
-colnames(full_data) <- c("Gene", 1:nrow(mRNA_data))
-
+full_data <- do.call(cbind, apply(mRNA_data, MARGIN = 1, get_expression))
+full_data <- full_data[, !duplicated(colnames(full_data))]
 write_csv(full_data, here::here("derived_data", "cleaned_TCGA_mRNA.csv"))
+
+# #THIS IS TOO SLOW, SOMEHOW NEED TO VECTORIZE (LAPPLY)
+# full_data <- data.frame('Gene' = 'filler')
+# for(i in 1:nrow(mRNA_data)) {
+#   obv <- read_delim(here::here("raw_data", "TCGA", as.character(mRNA_data[i,"folder"]), as.character(mRNA_data[i,"filename"])), 
+#                     delim = '\t', 
+#                     col_names = c("Gene", as.character(mRNA_data[i,"folder"])))
+#   full_data <- full_join(full_data, obv, 'Gene')
+#   print(i)
+# }
+
 
 # Cleaning the sequencing data
 
@@ -84,7 +87,7 @@ as.character(mut_data[i,1])
 
 # UUID to TCGA BARCODE CROSSWALK
 
-UUIDS <- as.data.frame(mRNA_data_sep$id)
+UUIDS <- as.data.frame(mRNA_data_sep$folder)
 colnames(UUIDS) <- "UUID"
 
 get_barcode <- function(x) {
