@@ -79,5 +79,47 @@ get_barcode <- function(x) {
 
 UUIDS$barcode <- sapply(as.character(UUIDS$UUID), get_barcode, USE.NAMES = FALSE)
 write_csv(UUIDS, here::here("derived_data", "gdc_uuids.txt"), col_names = FALSE)
+# Priority: mutect, somaticsniper, muse, varscan
+mutect_data <- gene_mutect@data
+
+parse_barcode <- function(barcode_data) {
+  barcode_data %>%
+    separate('barcode', into = c('project', 'tss', 'participant', 'sample', 'portion', 'plate', 'center'), 
+             sep = '-', extra = 'merge') -> parsed_barcode
+  return(parsed_barcode)
+}
+
+
+uuid_participant <- parse_barcode(uuid_to_barcode) 
+uuid_participant %>%
+  select(uuid, participant) -> uuid_participant
+
+mutect_data %>%
+  select("hugo" = Hugo_Symbol, "barcode" = Tumor_Sample_Barcode) -> mutect_data
+
+mutect_data <- parse_barcode(mutect_data)
+
+mutect_data %>%
+  select(hugo, participant) %>%
+  inner_join(uuid_participant, by = "participant") %>%
+  select(hugo, uuid) -> mutect_data
+
+mutect_data[1:30,] -> test
+
+
+test %>%
+  spread(hugo, 1,fill = 0)-> what
+
+mutect_data %>%
+  spread(hugo, 1, fill = 0) -> what
+
+mutect_data[26902:26904,] -> why
+
+obv_mutect <- data.frame("barcode" = unique(mutect_data$Tumor_Sample_Barcode))
+parse_obv_mutect <- parse_barcode(obv_mutect)
+parse_uuid_to_barcode <- parse_barcode(uuid_to_barcode)
+
+parse_obv_mutect %>%
+  inner_join(parse_uuid_to_barcode, by = "participant") -> joined
 
 
