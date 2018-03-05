@@ -50,7 +50,7 @@ full_data <- full_data[, !duplicated(colnames(full_data))] # dropping duplicate 
 write_csv(full_data, here::here("derived_data", "cleaned_TCGA_mRNA.csv"))
 
 #=================
-# CLEANING SEQUENCING DATA
+# Cleaning the sequencing data
 #=================
 
 sep_files %>%
@@ -80,21 +80,20 @@ get_barcode <- function(x) {
 UUIDS$barcode <- sapply(as.character(UUIDS$UUID), get_barcode, USE.NAMES = FALSE)
 write_csv(UUIDS, here::here("derived_data", "gdc_uuids.txt"), col_names = FALSE)
 
-#=================
 # Priority: mutect, somaticsniper, muse, varscan
-#=================
-mutect_data <- gene_mutect@data
 
 parse_barcode <- function(barcode_data) {
   barcode_data %>%
     separate('barcode', into = c('project', 'tss', 'participant', 'sample', 'portion', 'plate', 'center'), 
-             sep = '-', extra = 'merge') -> parsed_barcode
+             sep = '-', extra = 'merge') %>%
+    mutate(tcid = paste(participant, sample, sep = '_')) %>%
+    select(-project, -tss, -participant, -sample, -portion, -plate, -center) -> parsed_barcode
   return(parsed_barcode)
 }
 
-uuid_participant <- parse_barcode(uuid_to_barcode) 
-uuid_participant %>%
-  select(uuid, participant) -> uuid_participant
+uuid_tcid <- parse_barcode(uuid_to_barcode) 
+
+mutect_data <- gene_mutect@data
 
 mutect_data %>%
   select("hugo" = Hugo_Symbol, "barcode" = Tumor_Sample_Barcode) -> mutect_data
@@ -102,9 +101,8 @@ mutect_data %>%
 mutect_data <- parse_barcode(mutect_data)
 
 mutect_data %>%
-  select(hugo, participant) %>%
-  inner_join(uuid_participant, by = "participant") %>%
-  select(hugo, uuid) -> mutect_data
+  inner_join(uuid_tcid, by = "tcid") -> mutect_data
+
 
 mutect_data[1:30,] -> test
 
