@@ -39,5 +39,7 @@ mutect_data %>%
   summarise(count = n()) %>%
   spread(uuid, count, fill = 0) -> mutect_wide
 
+write_csv(mutect_wide, here::here("derived_data/cleaned_tcga_genes.csv"))
+
 
 
