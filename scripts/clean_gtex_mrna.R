@@ -1,6 +1,6 @@
 library(here)
 library(CePa)
 library(tidyverse)
-filepath <- here::here("GTEx data", "All_Tissue_Site_Details.combined.reads.gct")
+filepath <- here::here("GTEx", "All_Tissue_Site_Details.combined.reads.gct")
 X <- read.gct(filepath)
 gtex <- as.data.frame(X)
