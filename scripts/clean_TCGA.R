@@ -35,6 +35,9 @@ mRNA_data_sep %>%
   mutate(filename = paste(identifier,a, b, c, sep = ".")) %>%
   select(folder = id, filename) -> mRNA_data
 
+mRNA_data_sep %>%
+  select(folder = id, filename = identifier) -> mRNA_data_sep
+
 # unpacking and joining TCGA data (takes a little while)
 get_expression <- function(x) {
   folder <- as.character(x[1])
@@ -78,7 +81,7 @@ get_barcode <- function(x) {
 }
 
 UUIDS$barcode <- sapply(as.character(UUIDS$UUID), get_barcode, USE.NAMES = FALSE)
-write_csv(UUIDS, here::here("derived_data", "gdc_uuids.txt"), col_names = FALSE)
+write_csv(UUIDS, here::here("derived_data", "gdc_uuids.txt"), col_names = TRUE)
 
 # Priority: mutect, somaticsniper, muse, varscan
 
