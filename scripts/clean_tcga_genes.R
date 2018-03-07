@@ -34,7 +34,7 @@ gene_mutect@data %>%
 
 # widening data
 mutect_data %>%
-  select(hugo, uuid = UUID) %>%
+  select(hugo, uuid = uuid) %>%
   group_by(hugo, uuid) %>%
   summarise(count = n()) %>%
   spread(uuid, count, fill = 0) -> mutect_wide
