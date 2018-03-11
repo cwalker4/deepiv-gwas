@@ -13,5 +13,5 @@ get_barcode <- function(x) {
   return(as.character(getBarcode(print(x), legacy = FALSE)[,2]))
 }
 
-UUIDS$barcode <- sapply(as.character(UUIDS$UUID), get_barcode, USE.NAMES = FALSE)
-write_csv(UUIDS, here::here("derived_data/gdc_uuids.txt"), col_names = TRUE)
+uuids$barcode <- sapply(as.character(uuids$uuid), get_barcode, USE.NAMES = FALSE)
+write_csv(uuids, here::here("derived_data/gdc_uuids.txt"), col_names = TRUE)
