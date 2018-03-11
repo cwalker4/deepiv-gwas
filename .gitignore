@@ -50,5 +50,5 @@
 *.pyc
 
 # our data is too big to be in the repo
-raw_data/TCGA/
+raw_data/
 derived_data/
