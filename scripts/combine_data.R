@@ -1,15 +1,16 @@
 library(here)
 library(tidyverse)
 
-tcga_genes <- read_csv(here::here("derived_data", "cleaned_tcga_genes.csv"))
-gtex_genes <- read_csv(here::here("derived_data", "cleaned_gtex_genes.csv"))
-tcga_mrna <- read_csv(here::here("derived_data", "cleaned_tcga_mrna.csv"))
-gtex_mrna <- read_csv(here::here("derived_data", "cleaned_gtex_mrna.csv"))
+tcga_genes <- read_csv(here::here("derived_data/cleaned_tcga_genes.csv"))
+gtex_genes <- read_csv(here::here("derived_data/cleaned_gtex_genes.csv"))
+tcga_mrna <- read_csv(here::here("derived_data/cleaned_tcga_mrna.csv"))
+gtex_mrna <- read_csv(here::here("derived_data/cleaned_gtex_mrna.csv"))
 
 
 gtex_genes %>%
-  inner_join(tcga_genes, by = 'hugo') -> genes
-
+  inner_join(tcga_genes, by = 'hugo') %>%
+  group_by(hugo) %>%
+  summarize_all(sum) -> genes
 
 
 
