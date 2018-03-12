@@ -33,27 +33,3 @@ gtex_mrna %>%
   inner_join(tcga_mrna, by = 'mrna') -> mrna
 
 
-
-
-
-
-
-### Exploratory on hugo join
-tcga_hugo <- as.data.frame(tcga_genes$hugo)
-gtex_hugo <- as.data.frame(gtex_genes$hugo)
-
-colnames(tcga_hugo) <- "hugo"
-colnames(gtex_hugo) <- "hugo"
-
-length(unique(gtex_hugo$hugo))
-
-gtex_hugo %>%
-  inner_join(tcga_hugo, by = 'hugo', copy = TRUE) -> matched_hugo
-
-gtex_hugo %>%
-  anti_join(tcga_hugo, by = 'hugo', copy = TRUE) -> unmatched_gtex
-
-tcga_hugo %>%
-  anti_join(gtex_hugo, by = 'hugo', copy = TRUE) -> unmatched_tcga
-
-full_join(tcga_hugo, gtex_hugo, by = 'hugo')
