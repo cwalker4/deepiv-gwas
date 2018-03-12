@@ -5,7 +5,6 @@ for simulated data with varying levels of endogeneity and different sample sizes
 
 '''
 
-
 import numpy as np
 from matplotlib import pyplot as plt
 

@@ -17,8 +17,6 @@ import data_simulator
 
 import pdb
 
-import data_generator
-
 def onestage_model(n):
     '''
     Defines a one stage model with architecture outlined in milestone
