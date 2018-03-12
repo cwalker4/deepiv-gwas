@@ -1,13 +1,19 @@
 library(here)
 library(tidyverse)
 
+#=========
+# Importing data
+#=========
 
 tcga_genes <- read_csv(here::here("derived_data/cleaned_tcga_genes.csv"))
 gtex_genes <- read_csv(here::here("derived_data/cleaned_gtex_genes.csv"))
 tcga_mrna <- read_csv(here::here("derived_data/cleaned_tcga_mrna.csv"))
 gtex_mrna <- read_csv(here::here("derived_data/cleaned_gtex_mrna.csv"))
 
+#=========
 # don't need info after the period
+#=========
+
 delete_extra_info <- function(data) {
   data %>%
     separate('Gene', into = c('mrna', 'version'), sep = '\\.', extra = 'merge') %>%
@@ -22,17 +28,39 @@ tcga_mrna <- delete_extra_info(tcga_mrna)
 tcga_mrna %>%
   select(names(tcga_genes[,2:279]),  mrna) -> tcga_mrna
 
-### Join on hugo to create our Z matrix
+#=========
+# Join on hugo to create our Z matrix
+#=========
+
 gtex_genes %>%
   inner_join(tcga_genes, by = 'hugo') %>%
   group_by(hugo) %>%
   summarize_all(sum) -> genes
 
-### Join on mrna (Ensemble ids) to create our P matrix
+#=========
+# Join on mrna (Ensemble ids) to create our P matrix
+#=========
 
 gtex_mrna %>%
   inner_join(tcga_mrna, by = 'mrna') -> mrna
 
+#=========
+# Making our outcome vector
+#=========
+
+
+#=========
+# Writing results
+#=========
+
 write_csv(genes, here::here("derived_data", "gene_variants.csv"))
 write_csv(mrna, here::here("derived_data", "expression_levels.csv"))
+
+
+
+
+
+
+
+
 
