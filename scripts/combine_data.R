@@ -49,6 +49,15 @@ gtex_mrna %>%
 # Making our outcome vector
 #=========
 
+y.gtex <- data.frame(id = names(gtex_mrna %>%
+                                  select(-mrna)),
+                     outcome = 0)
+
+y.tcga <- data.frame(id = names(tcga_mrna %>%
+                                  select(-mrna)),
+                     outcome = 1)
+
+y <- rbind(y.gtex, y.tcga)
 
 #=========
 # Writing results
@@ -56,6 +65,7 @@ gtex_mrna %>%
 
 write_csv(genes, here::here("derived_data/gene_variants.csv"))
 write_csv(mrna, here::here("derived_data/expression_levels.csv"))
+write_csv(y, here::here("derived_data/outcomes.csv"))
 
 
 
