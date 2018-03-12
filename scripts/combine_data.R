@@ -71,19 +71,13 @@ subset_mrna %>%
 mrna %>%
   inner_join(subset_mrna, by = 'mrna') -> subset_mrna_data
 
-see_tcga <- tcga_mrna[1:25, 1:25]
-see_gtex <- gtex_mrna[1:25, 1:25]
-
-test[1:25, 1:25] -> gtex_see
-test[1:25, 12637:12667] -> tcga_see
-
-
 #=========
 # Writing results
 #=========
 
 write_csv(genes, here::here("derived_data/gene_variants.csv"))
 write_csv(mrna, here::here("derived_data/expression_levels.csv"))
+write_csv(subset_mrna_data, here::here("derived_data/expression_levels_subset.csv"))
 write_csv(y, here::here("derived_data/outcomes.csv"))
 
 
