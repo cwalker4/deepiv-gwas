@@ -26,7 +26,7 @@ gtex_mrna <- delete_extra_info(gtex_mrna)
 tcga_mrna <- delete_extra_info(tcga_mrna)
 
 tcga_mrna %>%
-  select(names(tcga_genes[,2:279]),  mrna) -> tcga_mrna
+  select(names(tcga_genes[,2:979]),  mrna) -> tcga_mrna
 
 #=========
 # Join on hugo to create our Z matrix
@@ -35,7 +35,8 @@ tcga_mrna %>%
 gtex_genes %>%
   inner_join(tcga_genes, by = 'hugo') %>%
   group_by(hugo) %>%
-  summarize_all(sum) -> genes
+  summarize_all(sum) %>%
+  select(-X1) -> genes
 
 #=========
 # Join on mrna (Ensemble ids) to create our P matrix
