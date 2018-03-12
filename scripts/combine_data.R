@@ -1,6 +1,6 @@
 library(here)
 library(tidyverse)
-
+library(gdata)
 #=========
 # Importing data
 #=========
@@ -58,6 +58,25 @@ y.tcga <- data.frame(id = names(tcga_mrna %>%
                      outcome = 1)
 
 y <- rbind(y.gtex, y.tcga)
+
+#=========
+# Restrict
+#=========
+
+subset_mrna <- read.xls(here::here("raw_data/mrna_subset.xls"), sheet = 7)
+
+subset_mrna %>%
+  select(mrna = Ensembl.ID) -> subset_mrna
+
+mrna %>%
+  inner_join(subset_mrna, by = 'mrna') -> subset_mrna_data
+
+see_tcga <- tcga_mrna[1:25, 1:25]
+see_gtex <- gtex_mrna[1:25, 1:25]
+
+test[1:25, 1:25] -> gtex_see
+test[1:25, 12637:12667] -> tcga_see
+
 
 #=========
 # Writing results
