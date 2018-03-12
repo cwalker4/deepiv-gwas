@@ -54,8 +54,8 @@ gtex_mrna %>%
 # Writing results
 #=========
 
-write_csv(genes, here::here("derived_data", "gene_variants.csv"))
-write_csv(mrna, here::here("derived_data", "expression_levels.csv"))
+write_csv(genes, here::here("derived_data/gene_variants.csv"))
+write_csv(mrna, here::here("derived_data/expression_levels.csv"))
 
 
 
