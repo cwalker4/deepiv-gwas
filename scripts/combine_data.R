@@ -17,8 +17,20 @@ gtex_genes %>%
 
 ### Join on mrna (Ensemble ids) to create our P matrix
 
+# don't need info after the period
+delete_extra_info <- function(data) {
+  data %>%
+    separate('Gene', into = c('mrna', 'version'), sep = '\\.', extra = 'merge') %>%
+    select(-version) -> modified_data
+  
+  return(modified_data)
+}
 
+gtex_mrna <- delete_extra_info(gtex_mrna)
+tcga_mrna <- delete_extra_info(tcga_mrna)
 
+gtex_mrna %>%
+  inner_join(tcga_mrna, by = 'mrna') -> mrna
 
 
 
