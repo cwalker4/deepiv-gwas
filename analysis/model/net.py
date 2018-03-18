@@ -10,26 +10,27 @@ from keras.utils import np_utils
 
 import numpy as np
 
-def feed_forward_net(input, output, hidden_layers=[64, 64], activations='relu',
-                     dropout_rate=0., l2=0., constrain_norm=False):
+def feed_forward_net(input_layer, params): 
     '''
     Helper function for building a Keras feed forward network.
 
     Args:
         input: (keras.Input) input object appropriate for data
+
+    params: (dict) including
         output: (keras.layers) function representing final layer of network 
         hidden_layers: (int) list of layer sizes
         activations: (string) list of activations to use for each layer; coerced to list if 
                     only one is provided
         dropout_rate: (float) 
-        l2: (float) l2 regularization parameter
-        constrain_norm: (boolean) whether to use kernel_constraint in dense layers
+        l2: (float) optional, l2 regularization parameter
+        constrain_norm: (boolean) optional, whether to use kernel_constraint in dense layers
 
     Returns:
         output of final layer of network (i.e. predictions)
     '''
 
-    state = input
+    state = input_layer
     if isinstance(params.activations, str):
         params.activations = [activations] * len(params.hidden_layers)
 
@@ -44,3 +45,29 @@ def feed_forward_net(input, output, hidden_layers=[64, 64], activations='relu',
             state = Dropout(params.dropout_rate)(state)
     
     return output(state)
+
+def accuracy(outputs, labels, stage):
+    '''
+    Compute accuracy, given outputs and labels for all tokens
+    
+    Args:
+        outputs: (np.ndarray) output of model
+        labels: (np.ndarray) true labels
+        stage: (string) one of either 'treatment' or 'response'
+
+    '''
+    # calculate MSE for treatment model
+    if stage == 'treatment':
+        error = (labels - output) ** 2).mean(axis=1)
+
+    # calculate misclassification error for response model
+    if stage == 'response':
+        labels = labels > 0.5
+        error = (labels - output).mean()
+
+    return error
+
+metrics = {
+        'accuracy' = accuracy,
+}
+
