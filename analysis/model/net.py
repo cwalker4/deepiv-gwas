@@ -10,21 +10,21 @@ from keras.utils import np_utils
 
 import numpy as np
 
-def feed_forward_net(input_layer, params): 
+def feed_forward_net(input_layer, output_layer, params): 
     '''
     Helper function for building a Keras feed forward network.
 
     Args:
-        input: (keras.Input) input object appropriate for data
+        input_layer: (keras.Input) input object appropriate for data
+        output_layer: (keras.layer) function for output layer
 
-    params: (dict) including
-        output: (keras.layers) function representing final layer of network 
+    params: (dict) includes
         hidden_layers: (int) list of layer sizes
         activations: (string) list of activations to use for each layer; coerced to list if 
                     only one is provided
         dropout_rate: (float) 
-        l2: (float) optional, l2 regularization parameter
-        constrain_norm: (boolean) optional, whether to use kernel_constraint in dense layers
+        l2: (float) l2 regularization parameter
+        constrain_norm: (boolean) whether to use kernel_constraint in dense layers
 
     Returns:
         output of final layer of network (i.e. predictions)
@@ -32,9 +32,9 @@ def feed_forward_net(input_layer, params):
 
     state = input_layer
     if isinstance(params.activations, str):
-        params.activations = [activations] * len(params.hidden_layers)
+        activations = [params.activations] * len(params.hidden_layers)
 
-    for h, a in zip(params.hidden_layers, params.activations):
+    for h, a in zip(params.hidden_layers, activations):
         if params.l2 > 0.:
             w_reg = keras.regularizers.l2(params.l2)
         else:
@@ -44,7 +44,7 @@ def feed_forward_net(input_layer, params):
         if params.dropout_rate > 0.:
             state = Dropout(params.dropout_rate)(state)
     
-    return output(state)
+    return output_layer(state)
 
 def accuracy(outputs, labels, stage):
     '''
@@ -58,7 +58,7 @@ def accuracy(outputs, labels, stage):
     '''
     # calculate MSE for treatment model
     if stage == 'treatment':
-        error = (labels - output) ** 2).mean(axis=1)
+        error = ((labels - output) ** 2).mean(axis=1)
 
     # calculate misclassification error for response model
     if stage == 'response':
@@ -68,6 +68,6 @@ def accuracy(outputs, labels, stage):
     return error
 
 metrics = {
-        'accuracy' = accuracy,
+        'accuracy': accuracy,
 }
 

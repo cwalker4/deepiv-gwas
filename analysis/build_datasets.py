@@ -82,13 +82,13 @@ if __name__ == "__main__":
  
     # Save the datasets to files
     save_dataset(train_expression, 'data/treatment/train', 'expression.csv')
-    save_dataset(dev_expression, 'data/treatment/dev', 'expression.csv')
+    save_dataset(dev_expression, 'data/treatment/val', 'expression.csv')
     save_dataset(test_expression, 'data/treatment/test', 'expression.csv')
 
     save_dataset(train_variants, 'data/treatment/train', 'variants.csv')
-    save_dataset(dev_variants, 'data/treatment/dev', 'variants.csv')
+    save_dataset(dev_variants, 'data/treatment/val', 'variants.csv')
     save_dataset(test_variants, 'data/treatment/test', 'variants.csv')
 
     save_dataset(train_outcomes, 'data/response/train', 'outcomes.csv')
-    save_dataset(dev_outcomes, 'data/response/dev', 'outcomes.csv')
+    save_dataset(dev_outcomes, 'data/response/val', 'outcomes.csv')
     save_dataset(test_outcomes, 'data/response/test', 'outcomes.csv')

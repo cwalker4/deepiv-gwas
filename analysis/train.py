@@ -6,25 +6,27 @@ import os
 
 import tensorflow as tf
 
-from keras.layers import Input
+from keras.models import Model
+from keras.layers import Input, Dense
 from keras import optimizers
 from keras.callbacks import ModelCheckpoint
 
+import model.net as net
 from model.utils import Params
 from model.utils import set_logger
-from model.training import train_and_evaluate
+from model.data_loader import load_data
+
+import numpy as np
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--model_dir', default='experiments/base_model',
-                    help="Directory containing params.json")
-parser.add_argument('--data_dir', default='data/small', help="Directory containing the dataset")
+parser.add_argument('stage', help="Which stage network to train")
+parser.add_argument('--model', default="base_model", help="Name of directory containing params.json")
 parser.add_argument('--restore_dir', default=None,
                     help="Optional, directory containing weights to reload before training")
 
 
-
-def train_and_evaluate(model, train_data, val_data, optimizer, loss_fn, metrics,  params, model_dir, restore_file=None):
+def train_and_evaluate(model, train_data, val_data, optimizer, metrics, params, model_dir, restore_file=None):
     '''
     Trains the Keras model
 
@@ -38,30 +40,25 @@ def train_and_evaluate(model, train_data, val_data, optimizer, loss_fn, metrics,
         params: (Params) hyperparameters
         model_dir: (string) directory containing config, weights and log 
     '''
-    model.compile(optimizer=optimizer, loss=loss_fn)
-    check_path = "weights-improvement-{epoch:02d}-{val_acc:.2f}.hdf5"
-    checkpointer = MoelCheckpoint(model_dir, monitor='val_loss', mode='max', save_best_only=True)
+    model.compile(optimizer=optimizer, loss=params.loss_fn)
+    check_path = os.path.join(model_dir, "weights-improvement-{epoch:02d}-{val_loss:.5f}.hdf5")
+    checkpointer = ModelCheckpoint(check_path, monitor='val_loss', mode='max', save_best_only=True)
 
-    model.fit(train_data['data'], train_data['labels'], epochs=params.epochs,
-              batch_size = params.batch_size, validation_data=(val_data['data'], val_data['labels'],
+    model.fit(train_data['data'], train_data['labels'], epochs=params.num_epochs,
+              batch_size = params.batch_size, validation_data=(val_data['data'], val_data['labels']),
               callbacks=[checkpointer])
 
 
 if __name__ == '__main__':
     # Set the random seed for the whole graph for reproductible experiments
-    np.seed(123)
+    np.random.seed(123)
     tf.set_random_seed(123)
 
     # Load the parameters from the experiment params.json file in model_dir
     args = parser.parse_args()
-    json_path = os.path.join(args.model_dir, 'params.json')
+    json_path = os.path.join('experiments', args.stage, args.model, 'params.json')
     assert os.path.isfile(json_path), "No json configuration file found at {}".format(json_path)
     params = Params(json_path)
-
-    # Load the parameters from the dataset, that gives the size etc. into params
-    json_path = os.path.join(args.data_dir, 'dataset_params.json')
-    assert os.path.isfile(json_path), "No json file found at {}, run build_vocab.py".format(json_path)
-    params.update(json_path)
 
     # Check that we are not overwriting some previous experiment
     # Comment these lines if you are developing your model and don't care about overwritting
@@ -70,13 +67,13 @@ if __name__ == '__main__':
     #assert not overwritting, "Weights found in model_dir, aborting to avoid overwrite"
 
     # Set the logger
-    set_logger(os.path.join(args.model_dir, 'train.log'))
+    set_logger(os.path.join('experiments', args.stage, args.model, 'train.log'))
 
     logging.info("Loading the datasets...")
 
     # load data
-    data_loader = DataLoader(args.data_dir, params)
-    data = data_loader.load_data(['train', 'val'], args.data_dir)
+    data_dir = os.path.join('data', args.stage)
+    data = load_data(['train', 'val'], args.stage, 'data')
     train_data = data['train']
     val_data = data['val']
 
@@ -89,9 +86,12 @@ if __name__ == '__main__':
     logging.info("- done.")
 
     # define the model 
-    input_layer = Input(shape=(train_data.shape[1],))
-    model = net.feed_forward_net(input_layer, params)
+    input_layer = Input(shape=(train_data['data'].shape[1],))
+    output_layer = Dense(train_data['labels'].shape[1], activation=params.output_activation)
+
+    ffn = net.feed_forward_net(input_layer, output_layer, params)
     optimizer = optimizers.adam(lr=params.learning_rate) # add others params to .json if we want
+    model = Model(inputs=input_layer, outputs=ffn)
 
     # fetch loss function and metrics
     metrics = net.metrics
@@ -99,4 +99,4 @@ if __name__ == '__main__':
     # train the model
     logging.info("Starting training for {} epoch(s)".format(params.num_epochs))
     train_and_evaluate(model, train_data, val_data, optimizer, metrics,
-                       params, args.model_dir) 
+                       params, os.path.join('experiments', args.stage, args.model)) 

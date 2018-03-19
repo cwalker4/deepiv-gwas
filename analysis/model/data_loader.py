@@ -5,7 +5,7 @@ import sys
 
 import utils
 
-def load_data(self, types, stage, data_dir):
+def load_data(types, stage, data_dir):
     ''' 
     loads each type of data (train, val, test) from data_dir
 
@@ -31,8 +31,8 @@ def load_data(self, types, stage, data_dir):
                 print("- done.\nLoading variants...")
                 variants = np.loadtxt(variants_path, delimiter=',')
                 print("- done")
-                data[split]['data'] = expression
-                data[split]['labels'] = variants
+                data[split]['data'] = variants 
+                data[split]['labels'] = expression 
                 data[split]['size'] = variants.shape[0]
             elif stage == 'response':
                 expression_path = os.path.join(data_dir, stage, "expression.csv")
@@ -42,7 +42,7 @@ def load_data(self, types, stage, data_dir):
                 print("- done.\nLoading outcomes...")
                 outcomes = np.loadtxt(loutcomes_path, delimiter=',')
                 print("- done.")
-                data[split]['data'] = expression
+                data[split]['data'] = expression 
                 data[split]['labels'] = outcomes
                 data[split]['size'] = expression.shape[0]
     
