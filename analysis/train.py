@@ -41,7 +41,7 @@ def train_and_evaluate(model, train_data, val_data, optimizer, metrics, params, 
         model_dir: (string) directory containing config, weights and log 
     '''
     model.compile(optimizer=optimizer, loss=params.loss_fn)
-    check_path = os.path.join(model_dir, "weights.improvement-{epoch:02d}-{val_loss:.5f}.hdf5")
+    check_path = os.path.join(model_dir, "weights_best.hdf5")
     early_stopping = EarlyStopping(monitor='val_loss', patience=5, mode='min')
     checkpointer = ModelCheckpoint(check_path, monitor='val_loss', mode='min', save_best_only=True)
 
