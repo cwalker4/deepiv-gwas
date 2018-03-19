@@ -49,6 +49,9 @@
 # Python cache
 *.pyc
 
-# our data is too big to be in the repo
+# don't want data in repo
 raw_data/
 derived_data/
+analysis/data/
+
+
