@@ -1,4 +1,4 @@
-"""Read, split and save the kaggle dataset for our model"""
+"""Read, split and save the datasets for our model"""
 
 import csv
 import os
@@ -10,13 +10,20 @@ import numpy as np
 def load_dataset(path_csv):
     """Loads dataset into memory from csv file"""
 
-    expression_levels = pd.read_csv(path_csv['expression_levels'])
-    gene_variants = pd.read_csv(path_csv['gene_variants'])
+    print("Loading expression...")
+    expression_levels = pd.read_csv(path_csv['expression'])
+    print("- done.\nLoading variants...")
+    gene_variants = pd.read_csv(path_csv['variants'])
+    print("- done.\nLoading outcomes...")
     outcomes = pd.read_csv(path_csv['outcomes'])
 
+    print("- done.\nTransforming expression...")
     expression_levels = expression_levels.drop('mrna', axis=1).transpose().as_matrix()
+    print("- done.\nTransforming variants...")
     gene_variants = gene_variants.drop('hugo', axis=1).transpose().as_matrix()
+    print("- done.\nTransforming outcomes...")
     outcomes = outcomes['outcome'].as_matrix()
+    print("- done.")
 
     return expression_levels, gene_variants, outcomes
 
@@ -29,13 +36,15 @@ def save_dataset(dataset, save_dir, fname):
         save_dir: (string)
         fname: (string)
     """
+    dataset = np.array(dataset)
+
     # Create directory if it doesn't exist
-    print("Saving in {}...".format(save_dir))
+    print("Saving %s in %s..." % (fname, save_dir))
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
 
     # Export the dataset
-    np.savetxt(os.path.join(save_dir, fname), dataset, ',')
+    np.savetxt(os.path.join(save_dir, fname), dataset, delimiter=',')
     print("- done.")
 
 
@@ -45,13 +54,13 @@ if __name__ == "__main__":
     variants_path = 'data/raw/gene_variants.csv'
     outcomes_path = 'data/raw/outcomes.csv'
 
-    msg = "{} file not found".format(path_dataset)
     for path in [expression_path, variants_path, outcomes_path]:
+        msg = "{} file not found".format(path)
         assert os.path.isfile(path), msg
 
     # Load the dataset into memory
     dataset_paths = {'expression' : expression_path,
-            'gene_variants' : variants_path,
+            'variants' : variants_path,
             'outcomes' : outcomes_path}
 
     print("Loading dataset into memory...")
@@ -59,17 +68,17 @@ if __name__ == "__main__":
     print("- done")
 
     # Split the dataset into train, dev and split (dummy split with no shuffle)
-    train_expression = expression[:int(0.7*expression.shape[0])]
-    dev_expression = expression[int(0.7*expression.shape[0]) : int(0.85*expression.shape[0])]
-    test_expression = expression[int(0.86*expression.shape[0])]
+    train_expression = expression[:int(0.7*expression.shape[0]),:]
+    dev_expression = expression[int(0.7*expression.shape[0]) : int(0.85*expression.shape[0]),:]
+    test_expression = expression[int(0.85*expression.shape[0]):,:]
 
-    train_variants = variants[:int(0.7*variants.shape[0])]
-    dev_variants = variants[int(0.7*variants.shape[0]) : int(0.85*variants.shape[0])]
-    test_variants = variants[int(0.86*variants.shape[0])]
+    train_variants = variants[:int(0.7*variants.shape[0]),:]
+    dev_variants = variants[int(0.7*variants.shape[0]) : int(0.85*variants.shape[0]),:]
+    test_variants = variants[int(0.85*variants.shape[0]):,:]
     
     train_outcomes = outcomes[:int(0.7*outcomes.shape[0])]
     dev_outcomes = outcomes[int(0.7*outcomes.shape[0]) : int(0.85*outcomes.shape[0])]
-    test_outcomes = outcomes[int(0.86*outcomes.shape[0])]
+    test_outcomes = outcomes[int(0.85*outcomes.shape[0]):]
  
     # Save the datasets to files
     save_dataset(train_expression, 'data/treatment/train', 'expression.csv')
@@ -82,4 +91,4 @@ if __name__ == "__main__":
 
     save_dataset(train_outcomes, 'data/response/train', 'outcomes.csv')
     save_dataset(dev_outcomes, 'data/response/dev', 'outcomes.csv')
-    save_dataset(test_outcomes, 'data/respone/test', 'outcomes.csv')
+    save_dataset(test_outcomes, 'data/response/test', 'outcomes.csv')
