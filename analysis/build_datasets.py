@@ -25,6 +25,12 @@ def load_dataset(path_csv):
     outcomes = outcomes['outcome'].as_matrix()
     print("- done.")
 
+    # shuffling data
+    permute = np.random.permutation(outcomes.shape[0])
+    expression_levels = expression_levels[permute,:]
+    gene_variants = gene_variants[permute,:]
+    outcomes = outcomes[permute]
+
     return expression_levels, gene_variants, outcomes
 
 
