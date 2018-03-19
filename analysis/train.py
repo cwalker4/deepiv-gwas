@@ -88,7 +88,10 @@ if __name__ == '__main__':
 
     # define the model 
     input_layer = Input(shape=(train_data['data'].shape[1],))
-    output_layer = Dense(train_data['labels'].shape[1], activation=params.output_activation)
+    if args.stage == 'treatment':
+        output_layer = Dense(train_data['labels'].shape[1], activation=params.output_activation)
+    elif args.stage == 'response':
+        output_layer = Dense(1, activation=params.output_activation)
 
     ffn = net.feed_forward_net(input_layer, output_layer, params)
     optimizer = optimizers.adam(lr=params.learning_rate) # add others params to .json if we want
