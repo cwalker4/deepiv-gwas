@@ -6,10 +6,11 @@ import os
 
 import tensorflow as tf
 
+import keras
 from keras.models import Model
 from keras.layers import Input, Dense
 from keras import optimizers
-from keras.callbacks import ModelCheckpoint, EarlyStopping
+from keras.callbacks import ModelCheckpoint, EarlyStopping, CSVLogger
 
 import model.net as net
 from model.utils import Params
@@ -40,16 +41,17 @@ def train_and_evaluate(model, train_data, val_data, optimizer, metrics, params, 
         params: (Params) hyperparameters
         model_dir: (string) directory containing config, weights and log 
     '''
+    logging.info("Training and evaluating model...")
     model.compile(optimizer=optimizer, loss=params.loss_fn)
     check_path = os.path.join(model_dir, "weights_best.hdf5")
+    csv_logger = CSVLogger(os.path.join(model_dir, 'logging.csv'))
     early_stopping = EarlyStopping(monitor='val_loss', patience=5, mode='min')
     checkpointer = ModelCheckpoint(check_path, monitor='val_loss', mode='min', save_best_only=True)
 
     model.fit(train_data['data'], train_data['labels'], epochs=params.num_epochs,
               batch_size = params.batch_size, validation_data=(val_data['data'], val_data['labels']),
-              callbacks=[checkpointer, early_stopping])
-
-
+              callbacks=[checkpointer, early_stopping, csv_logger])
+    
 if __name__ == '__main__':
     # Set the random seed for the whole graph for reproductible experiments
     np.random.seed(123)
