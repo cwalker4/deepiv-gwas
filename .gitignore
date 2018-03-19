@@ -49,9 +49,12 @@
 # Python cache
 *.pyc
 
-# don't want data in repo
+## don't want data in repo
 raw_data/
 derived_data/
 analysis/data/
+
+## jupyter notebook aux files
+.ipynb*
 
 
