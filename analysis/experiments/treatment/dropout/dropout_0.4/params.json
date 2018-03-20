@@ -1,0 +1,17 @@
+{
+    "stage": "treatment",
+    "hidden_layers": [
+        200,
+        200,
+        200
+    ],
+    "activations": "tanh",
+    "output_activation": "linear",
+    "constrain_norm": 0,
+    "l2": 0,
+    "dropout_rate": 0.4,
+    "learning_rate": 0.001,
+    "batch_size": 100,
+    "num_epochs": 100,
+    "loss_fn": "mse"
+}
