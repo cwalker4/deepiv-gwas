@@ -49,8 +49,9 @@ if __name__ == "__main__":
     params = Params(json_path)
 
     # Perform hypersearch over one parameter
-    #learning_rates = [1e-4, 1e-3, 1e-2]
-    l2 = [.1, .2, .3]
+    #learning_rates = [1e-5, 1e-4, 1e-3, 1e-2]
+    l2 = [.0001, .0005, .001, .005, .01]
+    #dropout = [.05, .075, .1, .2, .3, .4, .5]
 
     for val in l2:
         # Modify the relevant parameter in params
