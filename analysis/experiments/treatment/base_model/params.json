@@ -3,12 +3,12 @@
     "stage":  "treatment",
 
     "hidden_layers": [200, 200, 200],
-    "activations": "relu",
+    "activations": "tanh",
     "output_activation": "linear",
 
     "constrain_norm": 0,
-    "l2": 0.0005,
-    "dropout_rate": 0,
+    "l2": 0,
+    "dropout_rate": 0.5,
 
     "learning_rate": 1e-3,
     "batch_size": 100,

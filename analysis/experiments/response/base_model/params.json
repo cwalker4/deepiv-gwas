@@ -7,9 +7,9 @@
 
     "constrain_norm": 0,
     "l2": 0.0,
-    "dropout_rate": 0,
+    "dropout_rate": 0.1,
 
-    "learning_rate": 1e-3,
+    "learning_rate": 3e-5,
     "batch_size": 100,
     "num_epochs": 100,
     "loss_fn": "binary_crossentropy"
