@@ -4,7 +4,10 @@ import os
 
 from keras.models import load_model
 
+from sklearn import metrics
 import numpy as np
+import matplotlib.pyplot as plt
+
 import utils
 import model.net as net
 from model.data_loader import load_data
@@ -14,6 +17,20 @@ from model.utils import Params
 parser = argparse.ArgumentParser()
 parser.add_argument('stage', help = "Which stage of network to evaluate")
 parser.add_argument('restore_file', help = "Name of directory containing weights to load")
+
+
+def plot_roc(labels, preds):
+    fpr, tpr, thresholds = metrics.roc_curve(labels, preds)
+    auc = metrics.auc(fpr, tpr)
+    # plotting
+    plt.plot(fpr, tpr, 'b', label = 'AUC = %.2f' % auc)
+    plt.legend()
+    plt.plot([0,1], [0,1], 'b--')
+    plt.xlim([0,1])
+    plt.ylim([0,1])
+    plt.ylabel('True Positive Rate')
+    plt.xlabel('False Positive Rate')
+    plt.show()
 
 
 def evaluate(model, stage, data):
@@ -46,6 +63,8 @@ def evaluate(model, stage, data):
         n_misclassified = (preds != labels).sum()
         metrics['misclassification err'] = error
         metrics['n_misclassified'] = n_misclassified
+
+    plot_roc(labels, preds)
 
     return metrics
 
