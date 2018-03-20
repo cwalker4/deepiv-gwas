@@ -17,7 +17,7 @@ outcomes = pd.read_csv('data/simulate/outcomes.csv')
 #outcomes = pd.read_csv('data/response/test/outcomes.csv')
 print("- done.")
 
-decision_tree = tree.DecisionTreeClassifier(max_depth = 10)
+decision_tree = tree.DecisionTreeClassifier(max_depth = 7)
 print("Fitting tree...")
 decision_tree = decision_tree.fit(expression_levels, outcomes)
 print("- done.")
