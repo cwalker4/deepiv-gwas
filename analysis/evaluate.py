@@ -23,9 +23,9 @@ def plot_roc(labels, preds):
     fpr, tpr, thresholds = metrics.roc_curve(labels, preds)
     auc = metrics.auc(fpr, tpr)
     # plotting
-    plt.plot(fpr, tpr, 'b', label = 'AUC = %.2f' % auc)
+    plt.plot(fpr, tpr, 'b', label = 'AUC = %.5f' % auc)
     plt.legend()
-    plt.plot([0,1], [0,1], 'b--')
+    plt.plot([0,1], [0,1], 'k--')
     plt.xlim([0,1])
     plt.ylim([0,1])
     plt.ylabel('True Positive Rate')
@@ -45,6 +45,7 @@ def evaluate(model, stage, data):
         err: (float) one of MSE or Misclassification Error
     '''
     preds = model.predict(data['data'])
+    preds_raw = np.copy(preds)
     
     metrics = {}
 
@@ -64,7 +65,7 @@ def evaluate(model, stage, data):
         metrics['misclassification err'] = error
         metrics['n_misclassified'] = n_misclassified
 
-    plot_roc(labels, preds)
+    plot_roc(labels, preds_raw)
 
     return metrics
 
