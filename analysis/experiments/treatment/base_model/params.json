@@ -4,10 +4,10 @@
 
     "hidden_layers": [200, 200, 200],
     "activations": "relu",
-    "output_activation": "relu",
+    "output_activation": "linear",
 
     "constrain_norm": 0,
-    "l2": 0.0,
+    "l2": 0.0005,
     "dropout_rate": 0,
 
     "learning_rate": 1e-3,
