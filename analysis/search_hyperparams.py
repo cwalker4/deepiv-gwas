@@ -49,12 +49,13 @@ if __name__ == "__main__":
     params = Params(json_path)
 
     # Perform hypersearch over one parameter
-    learning_rates = [1e-4, 1e-3, 1e-2]
+    #learning_rates = [1e-4, 1e-3, 1e-2]
+    l2 = [.1, .2, .3]
 
-    for learning_rate in learning_rates:
+    for val in l2:
         # Modify the relevant parameter in params
-        params.learning_rate = learning_rate
+        params.l2 = val
 
         # Launch job (name has to be unique)
-        job_name = "learning_rate_{}".format(learning_rate)
+        job_name = "l2_{}".format(val)
         launch_training_job(args.stage, args.model, job_name, params)
