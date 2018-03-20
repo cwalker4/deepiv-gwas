@@ -37,8 +37,13 @@ def evaluate(model, stage, data):
 
     if stage == 'response':
         labels = (data['labels'] > 0.5).astype(int)
-        error = (preds == labels).mean()
-        n_misclassified = (preds == labels).sum()
+        labels = labels[:,np.newaxis]
+        #print(labels.shape)
+        preds = (preds > 0.5).astype(int)
+        #print(preds.shape)
+        error = (preds != labels).mean()
+        print(error)
+        n_misclassified = (preds != labels).sum()
         metrics['misclassification err'] = error
         metrics['n_misclassified'] = n_misclassified
 
