@@ -50,13 +50,14 @@ if __name__ == "__main__":
 
     # Perform hypersearch over one parameter
     #learning_rates = [1e-5, 1e-4, 1e-3, 1e-2]
-    l2 = [.0001, .0005, .001, .005, .01]
-    #dropout = [.05, .075, .1, .2, .3, .4, .5]
+    #fine_learning_rates = [1e-5, 2e-5, 3e-5, 4e-5, 5e-5, 7e-5, 1e-4, 8e-5, 9e-5, 2e-4, 3e-4]
+    #l2 = [.00005, .0001, .0002, .0003, .0004, .0005, .0006]
+    dropout = [.05, .075, .1, .2, .3, .4, .5]
 
-    for val in l2:
+    for val in dropout:
         # Modify the relevant parameter in params
-        params.l2 = val
+        params.dropout_rate = val
 
         # Launch job (name has to be unique)
-        job_name = "l2_{}".format(val)
+        job_name = "dropout_{}".format(val)
         launch_training_job(args.stage, args.model, job_name, params)
