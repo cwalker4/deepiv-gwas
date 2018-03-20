@@ -3,8 +3,8 @@
     "stage":  "treatment",
 
     "hidden_layers": [200, 200, 200],
-    "activations": "relu",
-    "output_activation": "relu",
+    "activations": "tanh",
+    "output_activation": "linear",
 
     "constrain_norm": 0,
     "l2": 0,
