@@ -31,6 +31,9 @@ def load_dataset(path_csv):
     gene_variants = gene_variants[permute,:]
     outcomes = outcomes[permute]
 
+    # normalize p
+    expression_levels = (expression_levels-np.mean(expression_levels,axis=0))/np.std(expression_levels,axis=0)
+
     return expression_levels, gene_variants, outcomes
 
 
