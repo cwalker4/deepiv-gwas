@@ -18,16 +18,24 @@ parser = argparse.ArgumentParser()
 parser.add_argument('stage', help = "Which stage of network to evaluate")
 parser.add_argument('restore_file', help = "Name of directory containing weights to load")
 
+print("Loading data for var-cov matrix...")
+expression_training = pd.read_csv('data/treatment/train/expression.csv')
+
 # Generate 100,000 p vectors from normal dist
 
 mu = np.zeros(2344)
-cov = np.identity(2344)
-sample_data = np.random.multivariate_normal(mu, cov, 100000)
+cov_1 = np.identity(2344)
+cov_2 = expression_training.transpose().as_matrix() @ expression_training.as_matrix()/100000
+
+sample_data_ind = np.random.multivariate_normal(mu, cov_1, 100000)
+sample_data_cov = np.random.multivariate_normal(mu, cov_2, 100000)
 
 # Sanity check
 print(mu.shape)
-print(cov.shape)
-print(sample_data.shape)
+print(cov_1.shape)
+print(cov_2.shape)
+print(sample_data_ind.shape)
+print(sample_data_cov.shape)
 
 def evaluate(model, stage, data):
     '''
@@ -40,8 +48,8 @@ def evaluate(model, stage, data):
     Returns:
         err: (float) one of MSE or Misclassification Error
     '''
-    preds = model.predict(sample_data)
-    preds = (preds > 0.5).astype(int)
+    preds = model.predict(data)
+    preds = (preds> 0.5).astype(int)
     
 
     return preds
@@ -77,11 +85,9 @@ if __name__ == '__main__':
     model = load_model(os.path.join(args.restore_file, 'weights_best.hdf5'))
     logging.info("- done.")
 
-    # load data
-    logging.info("Loading the datasets...")
-    data = sample_data
-    logging.info("- done.")
-
-    predictions = evaluate(model, args.stage, data)
-    save_dataset(sample_data, 'data/simulate', 'expression.csv')
-    save_dataset(predictions, 'data/simulate', 'outcomes.csv')
+    predictions_ind = evaluate(model, args.stage, sample_data_ind)
+    predictions_cov = evaluate(model, args.stage, sample_data_cov)
+    save_dataset(sample_data_ind, 'data/simulate/independent', 'expression.csv')
+    save_dataset(predictions_ind, 'data/simulate/independent', 'outcomes.csv')
+    save_dataset(sample_data_cov, 'data/simulate/covariance', 'expression.csv')
+    save_dataset(predictions_cov, 'data/simulate/covariance', 'outcomes.csv')
