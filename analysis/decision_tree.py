@@ -1,5 +1,4 @@
-"""Read, split and save the datasets for our model"""
-
+"Read, split and save the datasets for our model"""
 import csv
 import os
 import sys
@@ -7,7 +6,6 @@ import pandas as pd
 import numpy as np
 from sklearn import tree
 import graphviz
-import pydotplus
 
 
 print("Loading expression...")
@@ -18,19 +16,13 @@ outcomes = pd.read_csv('data/simulate/covariance/outcomes.csv')
 #outcomes = pd.read_csv('data/response/test/outcomes.csv')
 print("- done.")
 
-decision_tree = tree.DecisionTreeClassifier(min_samples_leaf = 50) #max_depth = 20
+decision_tree = tree.DecisionTreeClassifier(criterion='entropy', max_depth=4)
 print("Fitting tree...")
 decision_tree = decision_tree.fit(expression_levels, outcomes)
 print("- done.")
 
-print(">>>>> Trained fruit_classifier <<<<<")
-print(decision_tree)
+dot_data = tree.export_graphviz(decision_tree, out_file=None,
+        filled=True, rotate=True)
+graph = graphviz.Source(dot_data)
 
-
-with open("figures/decision_tree.dot", "w") as f:
-    f = tree.export_graphviz(decision_tree, out_file=f)
-
-
-#### Put this into the command line in the folder "figures" to get pdf of results
-#dot -Tpdf decision_tree.dot -o decision_tree.pdf
-#open -a preview decision_tree.pdf
+graph.render("decision_tree")
