@@ -1,0 +1,46 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+
+
+```{r}
+library(here)
+library(glmnet)
+library(tidyverse)
+```
+
+```{r}
+expression <- read_csv(here::here("analysis/data/simulate/covariance/expression.csv"))
+outcomes <- read_csv(here::here("analysis/data/simulate/covariance/outcomes.csv"))
+```
+```{r}
+expression_sub <- expression[1:20000,]
+outcomes_sub <- outcomes[1:20000,]
+lasso <- glmnet(as.matrix(expression_sub), as.matrix(outcomes_sub), alpha=1, family="binomial")
+
+plot(lasso, xvar = "lambda", label = TRUE)
+
+```
+
+```{r mini}
+# trying mini-mini model (to cv-select lambda)
+expression_mini <- expression[1:2000,]
+outcomes_mini <- outcomes[1:2000,]
+cvfit.mini <- cv.glmnet(as.matrix(expression_mini),
+                        as.matrix(outcomes_mini))
+lambda.1se <- cvfit.mini$lambda.1se
+
+```
+
+```{r}
+# looking at coefficients on full model at s = lambda.1se
+coefs <- as.vector(coef(lasso, s = lambda.1se))
+as.data.frame(coefs) %>%
+  mutate(ind = 0:(length(coefs)-1)) %>%
+  filter(coefs != 0) %>%
+  arrange(-abs(coefs)) -> coefs_tst
+
+```
+
