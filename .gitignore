@@ -50,9 +50,9 @@
 *.pyc
 
 ## don't want data in repo
-raw_data/
-derived_data/
-analysis/data/
+cs230/raw_data/*
+cs230/derived_data/*
+cs230/analysis/data/*
 
 ## jupyter notebook aux files
 .ipynb*

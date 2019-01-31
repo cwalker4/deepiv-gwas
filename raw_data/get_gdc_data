@@ -1,4 +1,0 @@
-#!/bin/bash
-mkdir gdc
-./gdc-client download -m gdc_manifest.txt -d gdc/
-
